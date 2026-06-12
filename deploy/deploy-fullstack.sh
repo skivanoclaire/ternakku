@@ -21,12 +21,13 @@ DBPASS="$(sed -n 's/^POSTGRES_PASSWORD=//p' stack.env)"
 # --- hentikan stack ringan (Modul 1) agar port 80/443 bebas ---
 $DC -f docker-compose.modul1.yml down 2>/dev/null || true
 
-# --- 1. generate Laravel bila belum ada ---
-if [ ! -f web/artisan ]; then
-  echo "▶ generate Laravel 11 ke web/ ..."
-  mkdir -p web
-  $DK run --rm -v "$ROOT/web":/app -w /app composer:2 \
-     create-project laravel/laravel . "^11.0" --no-interaction
+# --- 1. generate Laravel bila belum lengkap (vendor/ ada = sukses) ---
+if [ ! -f web/vendor/autoload.php ]; then
+  echo "▶ (re)generate Laravel 11 ke web/ ..."
+  rm -rf web && mkdir -p web
+  # policy.advisories.block=false: lewati blokir advisory composer pd framework 11.x
+  $DK run --rm -v "$ROOT/web":/app -w /app composer:2 sh -c \
+     'composer config --global policy.advisories.block false && composer create-project laravel/laravel . "^11.0" --no-interaction'
   # composer menulis sebagai root -> kembalikan kepemilikan ke pemanggil skrip
   $DK run --rm -v "$ROOT/web":/app -w /app composer:2 \
      chown -R "$(id -u)":"$(id -g)" /app

@@ -52,6 +52,8 @@ Route::middleware(['auth', 'role:admin'])
 
         // Manajemen pengguna & peran
         Route::get('/pengguna', [UserController::class, 'index'])->name('pengguna');
+        Route::post('/pengguna', [UserController::class, 'store'])->name('pengguna.store');
         Route::post('/pengguna/{user}/aktif', [UserController::class, 'toggleActive'])->name('pengguna.aktif');
         Route::post('/pengguna/{user}/peran', [UserController::class, 'setRole'])->name('pengguna.peran');
+        Route::post('/pengguna/{user}/reset-password', [UserController::class, 'resetPassword'])->name('pengguna.reset');
     });

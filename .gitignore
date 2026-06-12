@@ -2,6 +2,12 @@
 data/out/
 *.joblib
 
+# Laravel digenerate di VM (composer create-project); jangan commit framework-nya
+/web/
+
+# Lingkungan & rahasia
+.env
+
 # Python
 __pycache__/
 *.pyc

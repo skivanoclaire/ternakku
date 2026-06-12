@@ -1,0 +1,45 @@
+# TernakKu — stack lengkap satu VM. Hanya `nginx` terekspos publik;
+# app, ml, db, redis hanya di jaringan internal Docker (pakai expose:, bukan ports:).
+services:
+  nginx:
+    image: nginx:alpine
+    ports: ["80:80", "443:443"]            # SATU-SATUNYA yang terekspos publik
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./web/public:/var/www/html/public:ro
+      - ./nginx/certbot/www:/var/www/certbot:ro
+      - ./nginx/certbot/conf:/etc/letsencrypt:ro
+    depends_on: [app]
+    restart: unless-stopped
+
+  app:                                      # Laravel 11 (PHP-FPM) — web + REST API
+    build: ./web
+    expose: ["9000"]
+    env_file: .env
+    volumes: ["./web:/var/www/html"]
+    depends_on: [db, redis, ml]
+    restart: unless-stopped
+
+  ml:                                       # FastAPI (Modul 1) — internal only
+    build: ./ml
+    expose: ["8000"]
+    env_file: .env
+    volumes:
+      - ./data:/app/data                    # data/raw (input) & data/out (model + metrik)
+    depends_on: [db]
+    restart: unless-stopped
+
+  db:
+    image: postgres:16
+    expose: ["5432"]
+    env_file: .env
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    expose: ["6379"]
+    restart: unless-stopped
+
+volumes:
+  pgdata:

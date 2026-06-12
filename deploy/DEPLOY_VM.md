@@ -23,13 +23,23 @@ sudo usermod -aG docker $USER && newgrp docker
 docker --version && docker compose version
 ```
 
-## 2. Ambil kode & siapkan .env
+## 2. Ambil kode & siapkan kredensial
 ```bash
 cd ~ && git clone https://github.com/skivanoclaire/ternakku.git
 cd ~/ternakku
-cp .env.example .env
-nano .env                      # ganti POSTGRES_PASSWORD jadi kuat
+# stack.env (kredensial container) — dibuat otomatis oleh deploy-fullstack.sh.
+# Buat manual bila ingin atur password sekarang:
+cat > stack.env <<'EOF'
+POSTGRES_DB=ternakku
+POSTGRES_USER=ternakku
+POSTGRES_PASSWORD=ganti_password_kuat_ini
+APP_ENV=production
+ML_URL=http://ml:8000
+REDIS_HOST=redis
+EOF
 ```
+> Cara tercepat untuk seluruh tahap di bawah: jalankan `bash deploy/deploy-fullstack.sh`
+> (otomatis membuat stack.env, generate Laravel, build, migrate, seed).
 
 ## 3. Arahkan DNS (di pengelola kaltaraprov.web.id)
 Buat A record:  `ternakku.kaltaraprov.web.id  →  103.156.110.104`

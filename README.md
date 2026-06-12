@@ -41,7 +41,7 @@ Dokumentasi interaktif otomatis di `/docs` (Swagger UI) — berguna untuk demo.
 ## Isi repo
 ```
 docker-compose.yml      # stack lengkap (nginx, app, ml, db, redis)
-.env.example            # variabel (DB, ML_URL, domain) — salin ke .env
+docker-compose.modul1.yml  # stack ringan (nginx -> ml) untuk Modul 1 saja
 nginx/conf.d/           # reverse proxy + TLS untuk ternakku.kaltaraprov.web.id
 ml/                     # service FastAPI (Modul 1)
   ├── main.py           #   /health /prep /train /predict/bobot

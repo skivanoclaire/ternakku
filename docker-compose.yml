@@ -16,7 +16,9 @@ services:
     build: ./web
     expose: ["9000"]
     env_file: stack.env
-    volumes: ["./web:/var/www/html"]
+    volumes:
+      - ./web:/var/www/html
+      - ./data:/data                        # berbagi data latih dengan service ml
     depends_on: [db, redis, ml]
     restart: unless-stopped
 

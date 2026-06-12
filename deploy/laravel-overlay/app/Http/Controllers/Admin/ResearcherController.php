@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Experiment;
+use App\Services\DatasetService;
 use App\Services\MlClient;
 use Illuminate\Http\Request;
 
@@ -14,11 +15,12 @@ use Illuminate\Http\Request;
  */
 class ResearcherController extends Controller
 {
-    public function __construct(protected MlClient $ml) {}
+    public function __construct(protected MlClient $ml, protected DatasetService $dataset) {}
 
-    /** 6.2 — Eksplorasi & Kualitas Data. */
+    /** 6.2 — Eksplorasi & Kualitas Data (dari data latih DB terbaru). */
     public function eda()
     {
+        $this->dataset->exportTrainingCsv();
         $eda = $this->ml->eda();
         return view('admin.eda', ['eda' => $eda]);
     }
@@ -52,8 +54,8 @@ class ResearcherController extends Controller
             'eval_mode' => ['required', 'in:acak,lintas'],
         ]);
 
-        // pastikan dataset siap, lalu buat baris eksperimen (dapat id stabil utk model_ver)
-        $this->ml->prep();
+        // ekspor data latih terbaru dari DB lalu buat baris eksperimen (id stabil utk model_ver)
+        $this->dataset->exportTrainingCsv();
         $exp = Experiment::create([
             'user_id'   => $request->user()->id,
             'method'    => $data['method'],

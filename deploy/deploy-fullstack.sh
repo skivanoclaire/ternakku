@@ -96,6 +96,7 @@ sleep 5
 # --- 5. izin storage + artisan ---
 echo "▶ migrasi & seed ..."
 $DC -f docker-compose.yml exec -T app chmod -R 777 storage bootstrap/cache || true
+chmod -R 777 data 2>/dev/null || true     # agar app (www-data) bisa tulis CSV latih ke /data
 $DC -f docker-compose.yml exec -T app php artisan key:generate --force
 $DC -f docker-compose.yml exec -T app php artisan config:clear
 $DC -f docker-compose.yml exec -T app php artisan migrate --force

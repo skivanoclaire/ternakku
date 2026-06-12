@@ -4,6 +4,7 @@
 @php
     $nav = [
         ['admin.dashboard',  'Dashboard',     '📊'],
+        ['admin.data',       'Data Latih',    '📥'],
         ['admin.eda',        'Eksplorasi Data','🔎'],
         ['admin.latih',      'Latih Model',   '⚙️'],
         ['admin.leaderboard','Leaderboard',   '🏆'],

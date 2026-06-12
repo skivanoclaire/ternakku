@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DataController;
 use App\Http\Controllers\Admin\ResearcherController;
 use App\Http\Controllers\Api\EstimasiController;
 use App\Http\Controllers\Auth\AuthController;
@@ -35,6 +36,8 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
         // Researcher workbench (Modul 1)
+        Route::get('/data', [DataController::class, 'index'])->name('data');
+        Route::post('/data/import', [DataController::class, 'import'])->name('data.import');
         Route::get('/eda', [ResearcherController::class, 'eda'])->name('eda');
         Route::get('/latih', [ResearcherController::class, 'latihForm'])->name('latih');
         Route::post('/latih', [ResearcherController::class, 'latihStore'])->name('latih.store');

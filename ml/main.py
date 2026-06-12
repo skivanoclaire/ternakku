@@ -28,8 +28,14 @@ app = FastAPI(title="TernakKu ML — Modul 1 + Researcher")
 DATA_RAW = os.getenv("DATA_RAW", "data/raw")
 DATA_OUT = os.getenv("DATA_OUT", "data/out")
 CSV = os.path.join(DATA_OUT, "pengukuran_public.csv")
+TRAIN_CSV = os.path.join(DATA_OUT, "pengukuran_train.csv")   # diekspor Laravel dari DB
 MODEL_PATH = os.path.join(DATA_OUT, "model_modul1.joblib")
 FEAT_ORDER = ["lingkar_dada_cm", "panjang_badan_cm", "tinggi_gumba_cm"]
+
+
+def _active_csv():
+    """Pakai data latih dari DB (diekspor Laravel) bila ada; jika tidak, dataset publik."""
+    return TRAIN_CSV if os.path.exists(TRAIN_CSV) else CSV
 
 
 class Ukuran(BaseModel):
@@ -88,18 +94,20 @@ def train(best: str | None = None):
 
 @app.post("/eda")
 def eda():
-    if not os.path.exists(CSV):
-        return {"error": f"{CSV} belum ada — panggil /prep dulu"}
-    return experiment.eda(CSV)
+    csv = _active_csv()
+    if not os.path.exists(csv):
+        return {"error": "data latih belum ada — impor data atau panggil /prep"}
+    return experiment.eda(csv)
 
 
 @app.post("/experiment/train")
 def experiment_train(req: TrainReq):
-    if not os.path.exists(CSV):
-        return {"error": f"{CSV} belum ada — panggil /prep dulu"}
+    csv = _active_csv()
+    if not os.path.exists(csv):
+        return {"error": "data latih belum ada — impor data atau panggil /prep"}
     if req.method not in experiment.METHODS:
         return {"error": f"metode tak dikenal: {req.method}"}
-    return experiment.run(CSV, req.method, req.features, req.eval_mode, DATA_OUT, req.exp_id)
+    return experiment.run(csv, req.method, req.features, req.eval_mode, DATA_OUT, req.exp_id)
 
 
 @app.post("/experiment/promote")

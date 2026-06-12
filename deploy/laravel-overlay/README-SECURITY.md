@@ -22,8 +22,13 @@ Disalin ke proyek Laravel setelah `composer create-project` (lihat README.md uta
 | `routes/web-admin.php` | gabung ke `web/routes/web.php` | route admin terlindungi |
 | `AuthServiceProvider-snippet.php` | isi `boot()` `AppServiceProvider` | Gate::before admin + audit login |
 
+> Cara termudah: jalankan **`deploy/deploy-fullstack.sh`** — otomatis generate Laravel,
+> menyalin overlay ini (termasuk patch & view), konfigurasi `.env`, build, migrate, seed.
+> Langkah manual di bawah hanya untuk pemahaman.
+
 ## Langkah merangkai
-1. **Login** — pasang scaffolding auth: `php artisan breeze:install blade` (atau Fortify/Sanctum untuk API).
+1. **Login** — TIDAK perlu Breeze/Vite. Overlay menyertakan `AuthController` (auth bawaan
+   Laravel) + view Tailwind CDN (`auth/login`, `welcome`, `admin/dashboard`).
 2. **User model** — tambahkan ke `app/Models/User.php`:
    ```php
    use App\Models\Concerns\HasRoles;

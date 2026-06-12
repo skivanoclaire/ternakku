@@ -23,6 +23,7 @@ return new class extends Migration
             $t->id();
             $t->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $t->foreignId('ras_id')->nullable()->constrained('ref_ras')->nullOnDelete();
+            $t->unsignedBigInteger('wilayah_id')->nullable();   // atribut ABAC
             $t->string('jenis')->default('sapi');         // sapi / kambing
             $t->string('kelamin')->nullable();            // jantan / betina
             $t->integer('umur_estimasi_bulan')->nullable();

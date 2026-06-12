@@ -15,7 +15,7 @@ services:
   app:                                      # Laravel 11 (PHP-FPM) — web + REST API
     build: ./web
     expose: ["9000"]
-    env_file: .env
+    env_file: stack.env
     volumes: ["./web:/var/www/html"]
     depends_on: [db, redis, ml]
     restart: unless-stopped
@@ -23,7 +23,7 @@ services:
   ml:                                       # FastAPI (Modul 1) — internal only
     build: ./ml
     expose: ["8000"]
-    env_file: .env
+    env_file: stack.env
     volumes:
       - ./data:/app/data                    # data/raw (input) & data/out (model + metrik)
     depends_on: [db]
@@ -32,7 +32,7 @@ services:
   db:
     image: postgres:16
     expose: ["5432"]
-    env_file: .env
+    env_file: stack.env
     volumes: ["pgdata:/var/lib/postgresql/data"]
     restart: unless-stopped
 

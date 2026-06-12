@@ -4,16 +4,29 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ResearcherController;
 use App\Http\Controllers\Api\EstimasiController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Peternak\PengukuranController;
+use App\Http\Controllers\Peternak\TernakController;
 use Illuminate\Support\Facades\Route;
 
 // --- Publik ---
 Route::view('/', 'welcome')->name('beranda');
 Route::post('/estimasi/bobot', [EstimasiController::class, 'bobot'])->name('estimasi.bobot');
 
-// --- Auth (login admin) ---
+// --- Auth ---
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// --- Area peternak (RBAC: auth + role:peternak) ---
+Route::middleware(['auth', 'role:peternak'])->group(function () {
+    Route::get('/ternak', [TernakController::class, 'index'])->name('ternak.index');
+    Route::get('/ternak/tambah', [TernakController::class, 'create'])->name('ternak.create');
+    Route::post('/ternak', [TernakController::class, 'store'])->name('ternak.store');
+    Route::get('/ternak/{ternak}', [TernakController::class, 'show'])->name('ternak.show');
+    Route::post('/ternak/{ternak}/ukur', [PengukuranController::class, 'store'])->name('pengukuran.store');
+});
 
 // --- Area admin (RBAC: auth + role:admin) ---
 Route::middleware(['auth', 'role:admin'])

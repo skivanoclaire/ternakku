@@ -13,7 +13,8 @@
             </a>
             <div class="flex items-center gap-3">
                 <a href="#estimasi" class="text-sm font-medium text-brand-700 hover:text-brand-900">Coba Estimasi</a>
-                <a href="{{ route('login') }}" class="text-sm font-semibold px-4 py-2 rounded-lg bg-brand-600 text-white hover:bg-brand-700 transition shadow-lg shadow-brand-600/20">Login Admin</a>
+                <a href="{{ route('login') }}" class="text-sm font-medium text-brand-700 hover:text-brand-900">Masuk</a>
+                <a href="{{ route('register') }}" class="text-sm font-semibold px-4 py-2 rounded-lg bg-brand-600 text-white hover:bg-brand-700 transition shadow-lg shadow-brand-600/20">Daftar Peternak</a>
             </div>
         </div>
     </nav>

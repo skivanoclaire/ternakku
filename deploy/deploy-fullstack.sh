@@ -48,25 +48,13 @@ if [ ! -f web/vendor/autoload.php ]; then
      chown -R "$(id -u)":"$(id -g)" /app
 fi
 
-# --- 2. terapkan overlay (kode + view) ---
+# --- 2. terapkan overlay (kode + view) — rekursif, anti-omission ---
 echo "▶ menyalin overlay ..."
-mkdir -p web/app/Services web/app/Http/Controllers/Api web/app/Http/Controllers/Admin \
-         web/app/Http/Controllers/Auth web/app/Http/Middleware web/app/Models/Concerns \
-         web/app/Policies web/database/seeders \
-         web/resources/views/admin web/resources/views/auth web/resources/views/layouts
-cp $OV/Dockerfile                               web/Dockerfile
-cp $OV/app/Services/*.php                        web/app/Services/
-cp $OV/app/Http/Controllers/Api/*.php            web/app/Http/Controllers/Api/
-cp $OV/app/Http/Controllers/Admin/*.php          web/app/Http/Controllers/Admin/
-cp $OV/app/Http/Controllers/Auth/*.php           web/app/Http/Controllers/Auth/
-cp $OV/app/Http/Middleware/*.php                 web/app/Http/Middleware/
-cp $OV/app/Models/*.php                          web/app/Models/
-cp $OV/app/Models/Concerns/*.php                 web/app/Models/Concerns/
-cp $OV/app/Policies/*.php                        web/app/Policies/
-cp $OV/database/migrations/*.php                 web/database/migrations/
-cp $OV/database/seeders/*.php                    web/database/seeders/
-cp -r $OV/resources/views/.                       web/resources/views/
-cp $OV/routes/web.php                            web/routes/web.php
+cp $OV/Dockerfile             web/Dockerfile
+cp -r $OV/app/.               web/app/
+cp -r $OV/database/.          web/database/
+cp -r $OV/resources/.         web/resources/
+cp $OV/routes/web.php         web/routes/web.php
 
 # patch file inti (file utuh, bukan tambal sebagian)
 cp $OV/patches/User.php                          web/app/Models/User.php

@@ -33,6 +33,20 @@
 </div>
 @endif
 
+<div class="bg-white rounded-2xl border border-brand-100 shadow-sm p-5 max-w-2xl">
+    <div class="flex items-center justify-between">
+        <div>
+            <h2 class="font-bold text-brand-800">Data Sintetis (bootstrap & validasi)</h2>
+            <p class="text-xs text-brand-500">Bangkitkan data sintetis berlabel untuk skenario A (sintetis→nyata) & C (gabungan).</p>
+        </div>
+        <form method="POST" action="{{ route('admin.data.sintetis') }}">
+            @csrf
+            <input type="hidden" name="n" value="800">
+            <button class="px-4 py-2 rounded-lg bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700 transition">Buat 800 baris</button>
+        </form>
+    </div>
+</div>
+
 <div class="bg-white rounded-2xl border border-brand-100 shadow-sm p-6 max-w-2xl">
     <h2 class="font-bold text-brand-800 mb-1">Impor Dataset (CSV)</h2>
     <p class="text-xs text-brand-500 mb-4">

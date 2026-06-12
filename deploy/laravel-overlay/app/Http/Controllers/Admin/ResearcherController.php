@@ -52,6 +52,7 @@ class ResearcherController extends Controller
             'features'  => ['required', 'array', 'min:1'],
             'features.*'=> ['in:lingkar_dada_cm,panjang_badan_cm,tinggi_gumba_cm'],
             'eval_mode' => ['required', 'in:acak,lintas'],
+            'scenario'  => ['required', 'in:A,B,C'],
         ]);
 
         // ekspor data latih terbaru dari DB lalu buat baris eksperimen (id stabil utk model_ver)
@@ -61,9 +62,10 @@ class ResearcherController extends Controller
             'method'    => $data['method'],
             'features'  => $data['features'],
             'eval_mode' => $data['eval_mode'],
+            'scenario'  => $data['scenario'],
         ]);
 
-        $res = $this->ml->trainExperiment($data['method'], $data['features'], $data['eval_mode'], $exp->id);
+        $res = $this->ml->trainExperiment($data['method'], $data['features'], $data['eval_mode'], $exp->id, $data['scenario']);
 
         if (isset($res['error'])) {
             $exp->delete();
@@ -73,6 +75,7 @@ class ResearcherController extends Controller
         $m = $res['metrics'] ?? [];
         $exp->update([
             'method_label' => $res['method_label'] ?? null,
+            'scenario'     => $res['scenario'] ?? $exp->scenario,
             'n_rows'       => $res['n_rows'] ?? 0,
             'mape' => $m['mape'] ?? null, 'mae' => $m['mae'] ?? null,
             'rmse' => $m['rmse'] ?? null, 'r2' => $m['r2'] ?? null,

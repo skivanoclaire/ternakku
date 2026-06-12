@@ -116,56 +116,102 @@ def _importance(method, X, y, feats):
     return {}
 
 
-def run(csv, method, feats, eval_mode, outdir, exp_id):
-    feats = [f for f in feats if f in ALL_FEATS] or ["lingkar_dada_cm"]
-    df = pd.read_csv(csv).dropna(subset=feats + [TARGET, GROUP])
-    X, y, g = df[feats].values, df[TARGET].values.astype(float), df[GROUP].values
-
-    # prediksi out-of-fold untuk metrik & diagnostik yang jujur
-    oof = np.full(len(y), np.nan)
-    for tr, te in _splits(X, y, g, eval_mode):
-        oof[te] = _fit_predict(method, X[tr], y[tr], X[te])
-    mask = ~np.isnan(oof)
-    metrics = _metrics(y[mask], oof[mask])
-
-    # coverage interval p10-p90 (aproksimasi normal dari residual)
-    resid = y[mask] - oof[mask]
-    sd = float(np.std(resid))
-    z = 1.2816
-    coverage = float(np.mean(np.abs(resid) <= z * sd) * 100)
-    metrics["coverage"] = round(coverage, 1)
+def _eval_block(y_eval, p_eval):
+    metrics = _metrics(y_eval, p_eval)
+    resid = np.asarray(y_eval, float) - np.asarray(p_eval, float)
+    sd = float(np.std(resid)); z = 1.2816
+    metrics["coverage"] = round(float(np.mean(np.abs(resid) <= z * sd) * 100), 1)
     metrics["interval_kg"] = round(2 * z * sd, 1)
+    idx = np.arange(len(y_eval))
+    if len(idx) > 400:
+        idx = np.sort(np.random.RandomState(SEED).choice(idx, 400, replace=False))
+    diagnostics = {
+        "actual":   [round(float(np.asarray(y_eval)[i]), 1) for i in idx],
+        "pred":     [round(float(np.asarray(p_eval)[i]), 1) for i in idx],
+        "residual": [round(float(np.asarray(y_eval)[i] - np.asarray(p_eval)[i]), 1) for i in idx],
+    }
+    return metrics, diagnostics
 
-    # simpan artefak final (untuk promosi/serving)
+
+def run(csv, method, feats, eval_mode, outdir, exp_id, scenario="B"):
+    """Skenario sumber data:
+      B = nyata->nyata (CV, angka utama); A = sintetis->nyata; C = gabungan->nyata.
+    """
+    feats = [f for f in feats if f in ALL_FEATS] or ["lingkar_dada_cm"]
+    df = pd.read_csv(csv).dropna(subset=feats + [TARGET])
+    if "source" not in df:
+        df["source"] = "public"
+    if GROUP not in df:
+        df[GROUP] = "real"
+    real = df[df["source"] != "synthetic"]
+    synth = df[df["source"] == "synthetic"]
+
+    if scenario == "B" or synth.empty:
+        scenario = "B"
+        sub = real.dropna(subset=[GROUP])
+        X, y, g = sub[feats].values, sub[TARGET].values.astype(float), sub[GROUP].values
+        oof = np.full(len(y), np.nan)
+        for tr, te in _splits(X, y, g, eval_mode):
+            oof[te] = _fit_predict(method, X[tr], y[tr], X[te])
+        m = ~np.isnan(oof)
+        y_eval, p_eval = y[m], oof[m]
+        finalX, finalY = X, y
+    else:
+        real_train, real_test = _real_holdout(real)
+        train_df = synth if scenario == "A" else pd.concat([synth, real_train], ignore_index=True)
+        Xtr, ytr = train_df[feats].values, train_df[TARGET].values.astype(float)
+        y_eval = real_test[TARGET].values.astype(float)
+        p_eval = _fit_predict(method, Xtr, ytr, real_test[feats].values)
+        finalX, finalY = Xtr, ytr
+
+    metrics, diagnostics = _eval_block(y_eval, p_eval)
+
     os.makedirs(os.path.join(outdir, "experiments"), exist_ok=True)
     model_ver = f"exp{exp_id}-{method}"
-    bundle = _final_bundle(method, X, y, feats, model_ver)
+    bundle = _final_bundle(method, finalX, finalY, feats, model_ver)
     art = os.path.join(outdir, "experiments", f"{model_ver}.joblib")
     joblib.dump(bundle, art)
 
-    # diagnostik: sampel titik (maks 400) supaya payload ringan
-    idx = np.where(mask)[0]
-    if len(idx) > 400:
-        rng = np.random.RandomState(SEED)
-        idx = np.sort(rng.choice(idx, 400, replace=False))
-    diagnostics = {
-        "actual": [round(float(v), 1) for v in y[idx]],
-        "pred":   [round(float(v), 1) for v in oof[idx]],
-        "residual": [round(float(y[i] - oof[i]), 1) for i in idx],
+    return {
+        "model_ver": model_ver, "method": method,
+        "method_label": METHODS.get(method, method), "features": feats,
+        "eval_mode": eval_mode, "scenario": scenario, "n_rows": int(len(y_eval)),
+        "metrics": metrics, "importance": _importance(method, finalX, finalY, feats),
+        "diagnostics": diagnostics, "artifact": art,
     }
 
-    return {
-        "model_ver": model_ver,
-        "method": method,
-        "method_label": METHODS.get(method, method),
-        "features": feats,
-        "eval_mode": eval_mode,
-        "n_rows": int(mask.sum()),
-        "metrics": metrics,
-        "importance": _importance(method, X, y, feats),
-        "diagnostics": diagnostics,
-        "artifact": art,
-    }
+
+def generate_synthetic(n=800, seed=SEED):
+    """Bangkitkan data sintetis: bobot ~ allometrik(LD) * efek ras * noise (di-seed).
+    Parameter ditanam sehingga model bisa divalidasi (menemukan kembali pola)."""
+    rng = np.random.RandomState(seed)
+    ras_eff = {"Bali": 0.95, "Madura": 0.90, "Limousin": 1.10, "Brahman": 1.05}
+    ras_list = list(ras_eff)
+    rows = []
+    for i in range(int(n)):
+        ras = ras_list[rng.randint(len(ras_list))]
+        ld = rng.uniform(150, 230)
+        pb = ld * rng.uniform(0.82, 0.92)
+        tg = ld * rng.uniform(0.62, 0.70)
+        bobot = 0.00052 * (ld ** 2.6) * ras_eff[ras] * rng.normal(1.0, 0.06)
+        rows.append({
+            "src_dataset": "synthetic", "src_animal_id": f"syn{i}",
+            "lingkar_dada_cm": round(ld, 1), "panjang_badan_cm": round(pb, 1),
+            "tinggi_gumba_cm": round(tg, 1), "bobot_timbang_kg": round(bobot, 1),
+            "source": "synthetic",
+        })
+    return rows
+
+
+def _real_holdout(real):
+    """Pisahkan data nyata jadi train/test (grouped per dataset bila >1, jika tidak 30% acak)."""
+    groups = real[GROUP].dropna().unique() if GROUP in real else []
+    if len(groups) >= 2:
+        test_grp = sorted(groups)[-1]
+        return real[real[GROUP] != test_grp], real[real[GROUP] == test_grp]
+    shuf = real.sample(frac=1, random_state=SEED)
+    ntest = max(1, int(0.3 * len(shuf)))
+    return shuf.iloc[ntest:], shuf.iloc[:ntest]
 
 
 def eda(csv):

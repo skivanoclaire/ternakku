@@ -39,6 +39,7 @@ Route::middleware(['auth', 'role:admin'])
         // Researcher workbench (Modul 1)
         Route::get('/data', [DataController::class, 'index'])->name('data');
         Route::post('/data/import', [DataController::class, 'import'])->name('data.import');
+        Route::post('/data/sintetis', [DataController::class, 'generateSynthetic'])->name('data.sintetis');
         Route::get('/eda', [ResearcherController::class, 'eda'])->name('eda');
         Route::get('/latih', [ResearcherController::class, 'latihForm'])->name('latih');
         Route::post('/latih', [ResearcherController::class, 'latihStore'])->name('latih.store');

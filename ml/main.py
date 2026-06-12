@@ -48,7 +48,12 @@ class TrainReq(BaseModel):
     method: str = "linear"
     features: list[str] = FEAT_ORDER
     eval_mode: str = "acak"      # acak (5-fold) | lintas (grouped per dataset)
+    scenario: str = "B"          # B nyata->nyata | A sintetis->nyata | C gabungan->nyata
     exp_id: int = 0
+
+
+class SynthReq(BaseModel):
+    n: int = 800
 
 
 class PromoteReq(BaseModel):
@@ -107,7 +112,13 @@ def experiment_train(req: TrainReq):
         return {"error": "data latih belum ada — impor data atau panggil /prep"}
     if req.method not in experiment.METHODS:
         return {"error": f"metode tak dikenal: {req.method}"}
-    return experiment.run(csv, req.method, req.features, req.eval_mode, DATA_OUT, req.exp_id)
+    return experiment.run(csv, req.method, req.features, req.eval_mode, DATA_OUT, req.exp_id, req.scenario)
+
+
+@app.post("/synth/generate")
+def synth_generate(req: SynthReq):
+    """Bangkitkan data sintetis (dikembalikan ke Laravel untuk disimpan ke DB)."""
+    return {"rows": experiment.generate_synthetic(req.n)}
 
 
 @app.post("/experiment/promote")

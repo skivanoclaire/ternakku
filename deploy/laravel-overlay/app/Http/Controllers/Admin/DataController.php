@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Services\DatasetService;
+use App\Services\MlClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -14,7 +15,39 @@ use Illuminate\Support\Facades\DB;
  */
 class DataController extends Controller
 {
-    public function __construct(protected DatasetService $dataset) {}
+    public function __construct(protected DatasetService $dataset, protected MlClient $ml) {}
+
+    /** Bangkitkan data sintetis (source=synthetic) untuk skenario validasi A/C. */
+    public function generateSynthetic(Request $request)
+    {
+        $n = (int) $request->validate(['n' => ['nullable', 'integer', 'min:100', 'max:5000']])['n'] ?: 800;
+
+        // hapus sintetis lama agar tidak menumpuk, lalu sisipkan yang baru
+        DB::table('pengukuran')->where('source', 'synthetic')->delete();
+        $res = $this->ml->generateSynthetic($n);
+        if (isset($res['error']) || empty($res['rows'])) {
+            return back()->withErrors(['ml' => $res['error'] ?? 'gagal generate']);
+        }
+        $batch = [];
+        foreach ($res['rows'] as $r) {
+            $batch[] = [
+                'lingkar_dada_cm'  => $r['lingkar_dada_cm'] ?? null,
+                'panjang_badan_cm' => $r['panjang_badan_cm'] ?? null,
+                'tinggi_gumba_cm'  => $r['tinggi_gumba_cm'] ?? null,
+                'bobot_timbang_kg' => $r['bobot_timbang_kg'] ?? null,
+                'source'           => 'synthetic',
+                'status'           => 'approved',
+                'src_dataset'      => 'synthetic',
+                'src_animal_id'    => $r['src_animal_id'] ?? null,
+                'created_at'       => now(), 'updated_at' => now(),
+            ];
+            if (count($batch) >= 500) { DB::table('pengukuran')->insert($batch); $batch = []; }
+        }
+        if ($batch) { DB::table('pengukuran')->insert($batch); }
+        $this->dataset->exportTrainingCsv();
+
+        return back()->with('ok', count($res['rows']) . ' baris data sintetis dibuat (untuk skenario A/C).');
+    }
 
     public function index()
     {

@@ -16,6 +16,7 @@
             <tr>
                 <th class="px-4 py-3 font-medium">#</th>
                 <th class="px-4 py-3 font-medium">Metode</th>
+                <th class="px-4 py-3 font-medium">Skenario</th>
                 <th class="px-4 py-3 font-medium">Fitur</th>
                 <th class="px-4 py-3 font-medium">Eval</th>
                 <th class="px-4 py-3 font-medium">MAPE%</th>
@@ -36,6 +37,7 @@
                         @if ($e->is_active)<span class="ml-1 text-xs px-2 py-0.5 rounded-full bg-green-600 text-white">★ aktif</span>@endif
                         @if ($e->method === 'schoorl')<span class="ml-1 text-xs px-2 py-0.5 rounded-full bg-amber-200 text-amber-800">baseline</span>@endif
                     </td>
+                    <td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded-full bg-brand-100 text-brand-700">{{ $e->scenario ?? 'B' }}</span></td>
                     <td class="px-4 py-3 text-brand-500 text-xs">{{ count($e->features ?? []) }} fitur</td>
                     <td class="px-4 py-3 text-brand-500">{{ $e->eval_mode }}</td>
                     <td class="px-4 py-3 font-bold text-brand-800">{{ $e->mape }}</td>
@@ -47,7 +49,7 @@
                     <td class="px-4 py-3"><a href="{{ route('admin.eksperimen', $e) }}" class="text-brand-600 hover:underline">detail</a></td>
                 </tr>
             @empty
-                <tr><td colspan="11" class="px-6 py-10 text-center text-brand-400">Belum ada eksperimen. <a href="{{ route('admin.latih') }}" class="text-brand-600 hover:underline">Latih model pertama →</a></td></tr>
+                <tr><td colspan="12" class="px-6 py-10 text-center text-brand-400">Belum ada eksperimen. <a href="{{ route('admin.latih') }}" class="text-brand-600 hover:underline">Latih model pertama →</a></td></tr>
             @endforelse
         </tbody>
     </table>

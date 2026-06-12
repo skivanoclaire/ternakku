@@ -54,16 +54,23 @@ class MlClient
         return Http::timeout(60)->post($this->base . '/eda')->json() ?? ['error' => 'gagal eda'];
     }
 
-    /** Latih satu eksperimen (metode + fitur + mode evaluasi). */
-    public function trainExperiment(string $method, array $features, string $evalMode, int $expId): array
+    /** Latih satu eksperimen (metode + fitur + mode evaluasi + skenario). */
+    public function trainExperiment(string $method, array $features, string $evalMode, int $expId, string $scenario = 'B'): array
     {
         $res = Http::timeout(300)->post($this->base . '/experiment/train', [
             'method'    => $method,
             'features'  => array_values($features),
             'eval_mode' => $evalMode,
+            'scenario'  => $scenario,
             'exp_id'    => $expId,
         ]);
         return $res->json() ?? ['error' => 'ml tidak merespons saat training'];
+    }
+
+    /** Bangkitkan data sintetis (n baris) dari service ML. */
+    public function generateSynthetic(int $n = 800): array
+    {
+        return Http::timeout(60)->post($this->base . '/synth/generate', ['n' => $n])->json() ?? ['error' => 'gagal generate'];
     }
 
     /** Jadikan artefak eksperimen sebagai model aktif (melayani peternak). */

@@ -39,6 +39,16 @@
         </div>
 
         <div>
+            <label class="block text-sm font-semibold text-brand-800 mb-2">Skenario sumber data</label>
+            <select name="scenario" class="w-full rounded-xl border-brand-200 focus:ring-brand-500 focus:border-brand-500 bg-brand-50/50 px-4 py-2.5">
+                <option value="B">B — nyata → nyata (angka utama)</option>
+                <option value="A">A — sintetis → nyata (validasi data sintetis)</option>
+                <option value="C">C — gabungan → nyata</option>
+            </select>
+            <p class="text-xs text-brand-500 mt-1">A &amp; C butuh data sintetis (buat dulu di menu Data Latih). Mode evaluasi di bawah berlaku untuk skenario B.</p>
+        </div>
+
+        <div>
             <label class="block text-sm font-semibold text-brand-800 mb-2">Mode evaluasi</label>
             <div class="space-y-2 text-sm text-brand-700">
                 <label class="flex items-center gap-2">

@@ -15,7 +15,7 @@ class Experiment extends Model
     use Auditable;
 
     protected $fillable = [
-        'user_id', 'method', 'method_label', 'features', 'eval_mode', 'n_rows',
+        'user_id', 'method', 'method_label', 'features', 'eval_mode', 'scenario', 'n_rows',
         'mape', 'mae', 'rmse', 'r2', 'bias', 'coverage', 'interval_kg',
         'model_ver', 'importance', 'diagnostics', 'is_active',
     ];

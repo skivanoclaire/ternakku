@@ -53,6 +53,10 @@
         <li><b>Kategorik</b> — kategori/label (jenis kelamin: jantan/betina; ras: Bali/Simbal).</li>
     </ul>
     <p class="text-sm text-brand-600">Di TernakKu, satu baris tabel <code>pengukuran</code> = satu pengukuran seekor sapi.</p>
+    <x-quiz q="Dalam tabel data, apa yang biasanya diwakili oleh satu BARIS?"
+            :opsi="['Satu sifat/kolom seperti lingkar dada', 'Satu objek, mis. seekor sapi', 'Rata-rata semua sapi']"
+            :benar="1"
+            jawaban="Satu baris = satu objek (seekor sapi); kolom = sifat-sifatnya." />
 </section>
 
 {{-- 2 --}}
@@ -70,6 +74,18 @@
         <li><b>Deep Learning</b> — bagian dari ML memakai jaringan saraf tiruan (untuk gambar/teks; mis. estimasi dari foto).</li>
     </ul>
     <code class="{{ $rumus }}">AI  ⊃  ML  ⊃  Deep Learning      ·      Data Science memakai semuanya + statistik + domain</code>
+    <svg viewBox="0 0 460 196" class="w-full max-w-md mx-auto my-1" role="img" aria-label="Diagram AI ML Deep Learning">
+        <rect x="4" y="4" width="452" height="188" rx="14" fill="#f0fdf4" stroke="#16a34a"/>
+        <text x="16" y="22" font-size="12" fill="#166534" font-weight="bold">Data Science  (data + statistik + domain)</text>
+        <rect x="28" y="32" width="404" height="152" rx="12" fill="#dcfce7" stroke="#16a34a"/>
+        <text x="40" y="50" font-size="12" fill="#166534" font-weight="bold">AI — Kecerdasan Buatan</text>
+        <rect x="58" y="60" width="344" height="116" rx="10" fill="#bbf7d0" stroke="#15803d"/>
+        <text x="70" y="78" font-size="12" fill="#14532d" font-weight="bold">ML — Machine Learning</text>
+        <rect x="90" y="90" width="280" height="76" rx="8" fill="#4ade80" stroke="#15803d"/>
+        <text x="102" y="110" font-size="12" fill="#052e16" font-weight="bold">Deep Learning</text>
+        <text x="102" y="130" font-size="10" fill="#14532d">jaringan saraf untuk gambar/teks</text>
+        <text x="102" y="146" font-size="10" fill="#14532d">(mis. estimasi bobot dari foto)</text>
+    </svg>
     <p class="text-sm text-brand-600"><b>TernakKu</b> = produk data science: memakai ML (regresi) untuk memprediksi
     bobot, dan BI (dashboard, leaderboard) untuk memantau.</p>
 </section>
@@ -87,7 +103,22 @@
             <tr><td class="px-3 py-2"><b>Preskriptif</b></td><td class="px-3 py-2">Apa yang sebaiknya dilakukan?</td><td class="px-3 py-2">rekomendasi waktu jual optimal (Modul 6)</td></tr>
         </tbody>
     </table>
-    <p class="text-sm text-brand-600">Modul 1 berada di tingkat <b>prediktif</b> — inti nilai platform.</p>
+    <svg viewBox="0 0 480 170" class="w-full max-w-lg mx-auto my-1" role="img" aria-label="Empat tingkat analitik">
+        <rect x="10"  y="120" width="100" height="40" rx="6" fill="#dcfce7" stroke="#16a34a"/>
+        <rect x="120" y="95"  width="100" height="65" rx="6" fill="#bbf7d0" stroke="#16a34a"/>
+        <rect x="230" y="60"  width="100" height="100" rx="6" fill="#22c55e" stroke="#15803d"/>
+        <rect x="340" y="30"  width="120" height="130" rx="6" fill="#86efac" stroke="#15803d"/>
+        <text x="60"  y="144" font-size="11" fill="#166534" text-anchor="middle" font-weight="bold">Deskriptif</text>
+        <text x="170" y="144" font-size="11" fill="#166534" text-anchor="middle" font-weight="bold">Diagnostik</text>
+        <text x="280" y="150" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">Prediktif ★</text>
+        <text x="400" y="150" font-size="11" fill="#14532d" text-anchor="middle" font-weight="bold">Preskriptif</text>
+        <text x="60"  y="158" font-size="8" fill="#166534" text-anchor="middle">apa terjadi</text>
+        <text x="170" y="158" font-size="8" fill="#166534" text-anchor="middle">kenapa</text>
+        <text x="280" y="78"  font-size="8" fill="#fff" text-anchor="middle">apa akan terjadi</text>
+        <text x="400" y="48"  font-size="8" fill="#14532d" text-anchor="middle">sebaiknya apa</text>
+        <text x="240" y="20" font-size="10" fill="#15803d" text-anchor="middle">makin canggih →</text>
+    </svg>
+    <p class="text-sm text-brand-600">Modul 1 berada di tingkat <b>prediktif</b> (★) — inti nilai platform.</p>
 </section>
 
 {{-- 4 --}}
@@ -110,6 +141,32 @@
     <p class="bg-brand-50 border border-brand-100 rounded-lg px-4 py-2 text-sm">
         <b>Jenis problem kita: Supervised Learning → Regresi.</b> Inputnya ukuran tubuh (angka), jawabannya bobot (angka),
         dan kita punya kunci jawaban (bobot timbang asli) untuk belajar.</p>
+    <svg viewBox="0 0 520 210" class="w-full max-w-xl mx-auto my-1" role="img" aria-label="Pohon klasifikasi machine learning">
+        <line x1="260" y1="34" x2="110" y2="74" stroke="#86efac" stroke-width="2"/>
+        <line x1="260" y1="34" x2="260" y2="74" stroke="#86efac" stroke-width="2"/>
+        <line x1="260" y1="34" x2="410" y2="74" stroke="#86efac" stroke-width="2"/>
+        <line x1="110" y1="104" x2="60"  y2="150" stroke="#86efac" stroke-width="2"/>
+        <line x1="110" y1="104" x2="170" y2="150" stroke="#86efac" stroke-width="2"/>
+        <rect x="200" y="10" width="120" height="26" rx="6" fill="#16a34a"/>
+        <text x="260" y="27" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">Machine Learning</text>
+        <rect x="55"  y="76" width="110" height="28" rx="6" fill="#bbf7d0" stroke="#15803d"/>
+        <text x="110" y="94" font-size="10" fill="#14532d" text-anchor="middle" font-weight="bold">Supervised</text>
+        <rect x="205" y="76" width="110" height="28" rx="6" fill="#dcfce7" stroke="#16a34a"/>
+        <text x="260" y="94" font-size="10" fill="#166534" text-anchor="middle">Unsupervised</text>
+        <rect x="350" y="76" width="120" height="28" rx="6" fill="#dcfce7" stroke="#16a34a"/>
+        <text x="410" y="94" font-size="10" fill="#166534" text-anchor="middle">Reinforcement</text>
+        <rect x="8"   y="152" width="104" height="42" rx="6" fill="#22c55e" stroke="#15803d"/>
+        <text x="60"  y="170" font-size="10" fill="#fff" text-anchor="middle" font-weight="bold">Regresi ★</text>
+        <text x="60"  y="184" font-size="8"  fill="#eafff1" text-anchor="middle">target angka (bobot)</text>
+        <rect x="120" y="152" width="120" height="42" rx="6" fill="#dcfce7" stroke="#16a34a"/>
+        <text x="180" y="170" font-size="10" fill="#166534" text-anchor="middle" font-weight="bold">Klasifikasi</text>
+        <text x="180" y="184" font-size="8"  fill="#166534" text-anchor="middle">target kategori</text>
+        <text x="330" y="172" font-size="9" fill="#15803d">★ = posisi TernakKu Modul 1</text>
+    </svg>
+    <x-quiz q="Menebak BOBOT sapi (angka kg) dari ukuran tubuh, dengan data yang sudah ada bobot aslinya, termasuk jenis ML apa?"
+            :opsi="['Unsupervised — clustering', 'Supervised — klasifikasi', 'Supervised — regresi', 'Reinforcement learning']"
+            :benar="2"
+            jawaban="Ada kunci jawaban (bobot asli) = supervised; jawabannya angka kontinu = regresi." />
 </section>
 
 {{-- 5 --}}
@@ -191,6 +248,10 @@
     </table>
     <p class="text-sm text-brand-600"><b>p10–p90</b> = rentang prediksi: kemungkinan besar (~80%) bobot asli ada di
     antara nilai p10 (batas bawah) dan p90 (batas atas).</p>
+    <x-quiz q="Model A punya MAPE 7%, Model B punya MAPE 12%. Mana yang lebih akurat?"
+            :opsi="['Model B, karena angkanya lebih besar', 'Model A, karena MAPE makin kecil makin baik', 'Sama saja']"
+            :benar="1"
+            jawaban="MAPE = rata-rata error persen; makin KECIL makin akurat. 7% < 12% → Model A menang." />
 </section>
 
 {{-- 11 --}}
@@ -229,12 +290,21 @@
     </table>
     <p>Simbal (besar, mirip data latih) akurat; Bali (lokal kecil, di luar rentang) meleset 2×. Kedua Bali = angka identik
     425,3 → bukti model pohon <b>tak bisa ekstrapolasi</b>. Solusi: <b>rekalibrasi dengan data sapi lokal</b>.</p>
+    <x-quiz q="Kenapa model kita akurat untuk Simbal tapi meleset jauh untuk Sapi Bali?"
+            :opsi="['Kode platformnya bug', 'Sapi Bali di luar rentang/populasi data latih (sapi besar), model tak bisa ekstrapolasi', 'Lingkar dada bukan penanda bobot yang baik']"
+            :benar="1"
+            jawaban="Data latih berisi sapi besar; Bali kecil & di luar rentang → model pohon tak bisa ekstrapolasi. Bukan bug — perlu data lokal." />
 </section>
 
 {{-- 14 --}}
 <section id="sistem" class="{{ $box }}">
     <h2 class="{{ $h2 }}">14. Arsitektur Sistem</h2>
-    <code class="{{ $rumus }}">Pengguna → Nginx (HTTPS) → Laravel (web+API) → FastAPI/Python (ML) → PostgreSQL</code>
+    <div class="flex flex-wrap items-center gap-2 my-2">
+        @foreach ([['👤 Pengguna','#dcfce7'],['🔒 Nginx (HTTPS)','#bbf7d0'],['🐘 Laravel (web+API)','#86efac'],['🐍 FastAPI (ML)','#4ade80'],['🗄️ PostgreSQL','#bbf7d0']] as $i => $node)
+            @if ($i > 0)<span class="text-brand-500 font-bold">→</span>@endif
+            <span class="px-3 py-2 rounded-xl text-sm font-medium text-brand-900 border border-brand-200" style="background: {{ $node[1] }}">{{ $node[0] }}</span>
+        @endforeach
+    </div>
     <ul class="list-disc pl-5 space-y-1">
         <li><b>Laravel</b> (PHP): halaman, login, simpan data & eksperimen.</li>
         <li><b>API (Application Programming Interface)</b>: cara dua program bicara — Laravel memanggil API ML.</li>

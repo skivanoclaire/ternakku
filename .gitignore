@@ -1,0 +1,14 @@
+# Output yang dihasilkan ulang (jangan di-commit; reproducible dari kode+data)
+data/out/
+*.joblib
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+.vscode/

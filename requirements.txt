@@ -1,0 +1,11 @@
+# TernakKu — Modul 1 (estimasi bobot). Versi DIKUNCI agar hasil identik
+# di Colab, di laptop, maupun di container VM (reproducible).
+fastapi==0.111.1
+uvicorn[standard]==0.30.6
+pandas==2.2.2
+numpy==1.26.4
+scikit-learn==1.4.2
+xgboost==2.0.3
+openpyxl==3.1.5
+joblib==1.4.2
+matplotlib==3.8.4

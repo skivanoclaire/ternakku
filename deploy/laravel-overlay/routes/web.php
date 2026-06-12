@@ -35,6 +35,7 @@ Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')->name('admin.')
     ->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::view('/belajar', 'admin.belajar')->name('belajar');
 
         // Researcher workbench (Modul 1)
         Route::get('/data', [DataController::class, 'index'])->name('data');

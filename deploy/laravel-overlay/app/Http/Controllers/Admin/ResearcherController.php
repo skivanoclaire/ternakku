@@ -110,6 +110,24 @@ class ResearcherController extends Controller
         return view('admin.model', ['experiments' => $experiments]);
     }
 
+    /** 6.13 — Ekspor leaderboard sebagai CSV (bahan artikel/SLR). */
+    public function exportLeaderboard()
+    {
+        $exps = Experiment::with('user')->whereNotNull('mape')->orderBy('mape')->get();
+        $out = fopen('php://temp', 'r+');
+        fputcsv($out, ['rank', 'method', 'features', 'eval_mode', 'mape', 'mae', 'rmse', 'r2', 'coverage', 'model_ver', 'user', 'date']);
+        foreach ($exps as $i => $e) {
+            fputcsv($out, [$i + 1, $e->method_label ?? $e->method, implode('|', $e->features ?? []),
+                $e->eval_mode, $e->mape, $e->mae, $e->rmse, $e->r2, $e->coverage, $e->model_ver,
+                $e->user?->name, $e->created_at?->format('Y-m-d H:i')]);
+        }
+        rewind($out);
+        return response(stream_get_contents($out), 200, [
+            'Content-Type'        => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="leaderboard_ternakku.csv"',
+        ]);
+    }
+
     public function promote(Request $request, Experiment $experiment)
     {
         if (! $experiment->model_ver) {

@@ -2,10 +2,13 @@
 @section('heading', 'Papan Banding Metode')
 
 @section('page')
-<p class="text-sm text-brand-600/80">
-    Semua eksperimen diuji pada data & cara yang sama, jadi angkanya sebanding. Diurutkan dari MAPE terkecil.
-    Baris <b>Schoorl</b> adalah baseline klasik — model lain wajib mengalahkannya.
-</p>
+<div class="flex items-start justify-between gap-4">
+    <p class="text-sm text-brand-600/80">
+        Semua eksperimen diuji pada data & cara yang sama, jadi angkanya sebanding. Diurutkan dari MAPE terkecil.
+        Baris <b>Schoorl</b> adalah baseline klasik — model lain wajib mengalahkannya.
+    </p>
+    <a href="{{ route('admin.ekspor') }}" class="shrink-0 px-4 py-2 rounded-lg border border-brand-200 text-brand-700 text-sm font-semibold hover:bg-brand-100 transition">⬇ Ekspor CSV</a>
+</div>
 
 <div class="bg-white rounded-2xl border border-brand-100 shadow-sm overflow-x-auto">
     <table class="w-full text-sm">

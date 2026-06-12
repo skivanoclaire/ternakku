@@ -4,15 +4,18 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Audit;
+use App\Models\Experiment;
+use App\Services\MlClient;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Area admin. Route-nya dilindungi middleware 'auth' + 'role:admin'
- * (lihat routes/web.php). Ini "menu login admin": hanya peran admin
- * yang bisa masuk; pengguna lain dapat 403.
+ * Dashboard admin: ringkasan data/model, tren akurasi antar eksperimen,
+ * status service ML, dan audit trail terbaru.
  */
 class DashboardController extends Controller
 {
+    public function __construct(protected MlClient $ml) {}
+
     public function index()
     {
         $count = fn (string $t) => DB::getSchemaBuilder()->hasTable($t) ? DB::table($t)->count() : 0;
@@ -24,8 +27,21 @@ class DashboardController extends Controller
             'audits'     => $count('audits'),
         ];
 
-        $auditTerbaru = Audit::with('user')->latest()->limit(50)->get();
+        $aktif = Experiment::where('is_active', true)->first();
 
-        return view('admin.dashboard', compact('stats', 'auditTerbaru'));
+        // tren akurasi: MAPE tiap eksperimen menurut urutan waktu
+        $tren = Experiment::whereNotNull('mape')->orderBy('id')
+            ->get(['id', 'method', 'mape'])
+            ->map(fn ($e) => ['label' => '#'.$e->id.' '.$e->method, 'mape' => $e->mape]);
+
+        $mlStatus = $this->ml->health();
+
+        return view('admin.dashboard', [
+            'stats'        => $stats,
+            'auditTerbaru' => Audit::with('user')->latest()->limit(50)->get(),
+            'modelAktif'   => $aktif,
+            'tren'         => $tren,
+            'mlStatus'     => $mlStatus,
+        ]);
     }
 }

@@ -23,6 +23,31 @@
         <a href="{{ route('admin.eda') }}" class="px-5 py-3 rounded-xl border border-brand-200 text-brand-700 font-semibold hover:bg-brand-100 transition">🔎 Eksplorasi data</a>
     </div>
 
+    <div class="grid md:grid-cols-3 gap-4">
+        <div class="bg-white rounded-2xl p-5 border border-brand-100 shadow-sm">
+            <p class="text-xs text-brand-500">Status service ML</p>
+            @php $up = ($mlStatus['status'] ?? '') === 'ok'; @endphp
+            <p class="mt-2 flex items-center gap-2 font-bold {{ $up ? 'text-green-600' : 'text-red-600' }}">
+                <span class="w-2.5 h-2.5 rounded-full {{ $up ? 'bg-green-500' : 'bg-red-500' }}"></span>
+                {{ $up ? 'Aktif' : 'Tidak terhubung' }}
+            </p>
+            <p class="text-xs text-brand-400 mt-1">model termuat: {{ ($mlStatus['model_ada'] ?? false) ? 'ya' : 'belum' }}</p>
+        </div>
+        <div class="bg-white rounded-2xl p-5 border border-brand-100 shadow-sm">
+            <p class="text-xs text-brand-500">Model aktif</p>
+            @if ($modelAktif)
+                <p class="mt-2 font-bold text-brand-800">{{ $modelAktif->method_label ?? $modelAktif->method }}</p>
+                <p class="text-xs text-brand-500">MAPE {{ $modelAktif->mape }}% · {{ $modelAktif->model_ver }}</p>
+            @else
+                <p class="mt-2 text-brand-400">Belum ada — <a href="{{ route('admin.latih') }}" class="text-brand-600 hover:underline">latih & promosikan</a></p>
+            @endif
+        </div>
+        <div class="bg-white rounded-2xl p-5 border border-brand-100 shadow-sm">
+            <p class="text-xs text-brand-500 mb-1">Tren akurasi (MAPE per eksperimen)</p>
+            <canvas id="tren" height="80"></canvas>
+        </div>
+    </div>
+
     <div class="bg-white rounded-2xl border border-brand-100 shadow-sm animate-fade-up delay-2">
         <div class="px-6 py-4 border-b border-brand-100 flex items-center justify-between">
             <h2 class="font-bold text-brand-800">Audit Trail Terbaru</h2>
@@ -63,4 +88,17 @@
             </table>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script>
+        const tren = @json($tren);
+        if (tren.length) {
+            new Chart(document.getElementById('tren'), {
+                type: 'line',
+                data: { labels: tren.map(t=>t.label), datasets: [{ data: tren.map(t=>t.mape),
+                    borderColor:'#16a34a', backgroundColor:'rgba(22,163,74,.1)', fill:true, tension:.3, pointRadius:2 }] },
+                options: { plugins:{legend:{display:false}}, scales:{y:{title:{display:true,text:'MAPE %'}}} }
+            });
+        }
+    </script>
 @endsection

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DataController;
 use App\Http\Controllers\Admin\ResearcherController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Api\EstimasiController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Peternak\PengukuranController;
@@ -45,4 +46,10 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/leaderboard', [ResearcherController::class, 'leaderboard'])->name('leaderboard');
         Route::get('/model', [ResearcherController::class, 'modelIndex'])->name('model');
         Route::post('/model/{experiment}/promote', [ResearcherController::class, 'promote'])->name('model.promote');
+        Route::get('/ekspor', [ResearcherController::class, 'exportLeaderboard'])->name('ekspor');
+
+        // Manajemen pengguna & peran
+        Route::get('/pengguna', [UserController::class, 'index'])->name('pengguna');
+        Route::post('/pengguna/{user}/aktif', [UserController::class, 'toggleActive'])->name('pengguna.aktif');
+        Route::post('/pengguna/{user}/peran', [UserController::class, 'setRole'])->name('pengguna.peran');
     });

@@ -25,18 +25,19 @@
 <div class="bg-white rounded-2xl border border-brand-100 shadow-sm overflow-x-auto">
     <table class="w-full text-sm">
         <thead class="text-left text-brand-500 bg-brand-50/60">
+            @php $thc = 'px-4 py-3 font-medium'; $tip = 'cursor-help border-b border-dotted border-brand-400'; @endphp
             <tr>
-                <th class="px-4 py-3 font-medium">#</th>
-                <th class="px-4 py-3 font-medium">Metode</th>
-                <th class="px-4 py-3 font-medium">Skenario</th>
-                <th class="px-4 py-3 font-medium">Fitur</th>
-                <th class="px-4 py-3 font-medium">Eval</th>
-                <th class="px-4 py-3 font-medium">MAPE%</th>
-                <th class="px-4 py-3 font-medium">MAE</th>
-                <th class="px-4 py-3 font-medium">RMSE</th>
-                <th class="px-4 py-3 font-medium">R²</th>
-                <th class="px-4 py-3 font-medium">Oleh</th>
-                <th class="px-4 py-3 font-medium">Tanggal</th>
+                <th class="{{ $thc }}"><span class="{{ $tip }}" title="Peringkat — diurutkan dari MAPE terkecil (paling akurat di atas).">#</span></th>
+                <th class="{{ $thc }}"><span class="{{ $tip }}" title="Algoritma yang dipakai (linear, log-log, RF, XGBoost, hibrida, baseline Schoorl).">Metode</span></th>
+                <th class="{{ $thc }}"><span class="{{ $tip }}" title="Sumber data: B nyata→nyata (angka utama), A sintetis→nyata, C gabungan→nyata.">Skenario</span></th>
+                <th class="{{ $thc }}"><span class="{{ $tip }}" title="Jumlah fitur yang dipakai (ukuran tubuh mentah + fitur rekayasa allometrik).">Fitur</span></th>
+                <th class="{{ $thc }}"><span class="{{ $tip }}" title="Cara evaluasi: acak (5-fold) atau lintas-dataset (grouped, anti-kebocoran).">Eval</span></th>
+                <th class="{{ $thc }}"><span class="{{ $tip }}" title="Mean Absolute Percentage Error — rata-rata kesalahan persen. Makin kecil makin akurat; metrik utama.">MAPE%</span></th>
+                <th class="{{ $thc }}"><span class="{{ $tip }}" title="Mean Absolute Error — rata-rata meleset berapa kg. Konkret.">MAE</span></th>
+                <th class="{{ $thc }}"><span class="{{ $tip }}" title="Root Mean Squared Error (kg) — seperti MAE tapi menghukum error besar lebih keras.">RMSE</span></th>
+                <th class="{{ $thc }}"><span class="{{ $tip }}" title="Koefisien determinasi (0–1): proporsi variasi bobot yang dijelaskan model. Mendekati 1 = baik.">R²</span></th>
+                <th class="{{ $thc }}"><span class="{{ $tip }}" title="Researcher yang menjalankan eksperimen.">Oleh</span></th>
+                <th class="{{ $thc }}"><span class="{{ $tip }}" title="Waktu eksperimen dijalankan.">Tanggal</span></th>
                 <th class="px-4 py-3"></th>
             </tr>
         </thead>

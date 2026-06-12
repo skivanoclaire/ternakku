@@ -19,12 +19,12 @@
     <table class="w-full text-sm">
         <thead class="text-left text-brand-500 bg-brand-50/60">
             <tr>
-                <th class="px-4 py-3 font-medium">model_ver</th>
-                <th class="px-4 py-3 font-medium">Metode</th>
-                <th class="px-4 py-3 font-medium">MAPE%</th>
-                <th class="px-4 py-3 font-medium">R²</th>
-                <th class="px-4 py-3 font-medium">Oleh</th>
-                <th class="px-4 py-3 font-medium">Status</th>
+                <th class="px-4 py-3 font-medium"><span class="cursor-help border-b border-dotted border-brand-400" title="Identitas unik versi model (mis. exp4-xgb). Dicatat pada tiap prediksi untuk audit & A/B test.">model_ver</span></th>
+                <th class="px-4 py-3 font-medium"><span class="cursor-help border-b border-dotted border-brand-400" title="Algoritma yang dipakai melatih model ini (linear, log-log, Random Forest, XGBoost, hibrida, atau baseline Schoorl).">Metode</span></th>
+                <th class="px-4 py-3 font-medium"><span class="cursor-help border-b border-dotted border-brand-400" title="Mean Absolute Percentage Error — rata-rata kesalahan dalam persen. Makin kecil makin akurat; metrik utama yang mudah dijelaskan ke peternak.">MAPE%</span></th>
+                <th class="px-4 py-3 font-medium"><span class="cursor-help border-b border-dotted border-brand-400" title="Koefisien determinasi (0–1): proporsi variasi bobot yang dijelaskan model. Mendekati 1 = sangat baik; negatif = lebih buruk dari sekadar menebak rata-rata.">R²</span></th>
+                <th class="px-4 py-3 font-medium"><span class="cursor-help border-b border-dotted border-brand-400" title="Pengguna (researcher) yang melatih model ini.">Oleh</span></th>
+                <th class="px-4 py-3 font-medium"><span class="cursor-help border-b border-dotted border-brand-400" title="★ aktif = model yang sedang melayani estimasi peternak. arsip = tersimpan tapi tidak dipakai.">Status</span></th>
                 <th class="px-4 py-3"></th>
             </tr>
         </thead>

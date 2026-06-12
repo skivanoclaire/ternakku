@@ -27,6 +27,9 @@ if [ ! -f web/artisan ]; then
   mkdir -p web
   $DK run --rm -v "$ROOT/web":/app -w /app composer:2 \
      create-project laravel/laravel . "^11.0" --no-interaction
+  # composer menulis sebagai root -> kembalikan kepemilikan ke pemanggil skrip
+  $DK run --rm -v "$ROOT/web":/app -w /app composer:2 \
+     chown -R "$(id -u)":"$(id -g)" /app
 fi
 
 # --- 2. terapkan overlay (kode + view) ---

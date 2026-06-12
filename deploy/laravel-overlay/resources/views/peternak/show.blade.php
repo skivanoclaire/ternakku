@@ -39,12 +39,12 @@
             </div>
             <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-sm font-medium mb-1">Panjang badan</label>
+                    <label class="block text-sm font-medium mb-1">Panjang badan (cm)</label>
                     <input name="panjang_badan_cm" type="number" step="0.1"
                            class="w-full rounded-xl border-brand-200 focus:ring-brand-500 focus:border-brand-500 bg-brand-50/50 px-4 py-2.5">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-1">Tinggi gumba</label>
+                    <label class="block text-sm font-medium mb-1">Tinggi gumba (cm)</label>
                     <input name="tinggi_gumba_cm" type="number" step="0.1"
                            class="w-full rounded-xl border-brand-200 focus:ring-brand-500 focus:border-brand-500 bg-brand-50/50 px-4 py-2.5">
                 </div>

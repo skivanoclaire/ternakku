@@ -52,12 +52,12 @@
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium mb-1">Panjang badan</label>
+                            <label class="block text-sm font-medium mb-1">Panjang badan (cm)</label>
                             <input x-model.number="pb" type="number" step="0.1"
                                    class="w-full rounded-xl border-brand-200 focus:ring-brand-500 focus:border-brand-500 bg-brand-50/50 px-4 py-2.5">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium mb-1">Tinggi gumba</label>
+                            <label class="block text-sm font-medium mb-1">Tinggi gumba (cm)</label>
                             <input x-model.number="tg" type="number" step="0.1"
                                    class="w-full rounded-xl border-brand-200 focus:ring-brand-500 focus:border-brand-500 bg-brand-50/50 px-4 py-2.5">
                         </div>

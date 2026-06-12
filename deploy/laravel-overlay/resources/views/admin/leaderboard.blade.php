@@ -2,6 +2,18 @@
 @section('heading', 'Papan Banding Metode')
 
 @section('page')
+<x-help title="Apa itu leaderboard & cara membacanya" :open="true">
+    <p>Tabel ini mengadu <b>semua eksperimen</b> pada data uji & cara hitung yang <b>sama</b>, sehingga angkanya benar-benar
+    sebanding — tidak ada lagi "akurasi saya beda dengan kamu". Diurutkan dari <b>MAPE terkecil</b> (paling akurat di atas).</p>
+    <ul class="list-disc pl-5 space-y-1">
+        <li>Kolom <b>Skenario</b> (A/B/C) = sumber data latih; bandingkan B (nyata) sebagai penentu utama.</li>
+        <li>Baris <b>Schoorl</b> (kuning) = baseline klasik wajib — model lain harus mengalahkannya agar bermakna.</li>
+        <li>Badge <b>★ aktif</b> = model yang sedang melayani estimasi peternak.</li>
+        <li><b>Penting</b>: selisih kecil (mis. 7,8% vs 7,9%) belum tentu beda nyata — jalankan beberapa kali sebelum mengklaim menang.</li>
+    </ul>
+    <p>Klik <b>detail</b> untuk metrik lengkap & grafik diagnosa; <b>Ekspor CSV</b> untuk bahan artikel.</p>
+</x-help>
+
 <div class="flex items-start justify-between gap-4">
     <p class="text-sm text-brand-600/80">
         Semua eksperimen diuji pada data & cara yang sama, jadi angkanya sebanding. Diurutkan dari MAPE terkecil.

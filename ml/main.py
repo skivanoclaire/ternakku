@@ -46,9 +46,10 @@ class Ukuran(BaseModel):
 
 class TrainReq(BaseModel):
     method: str = "linear"
-    features: list[str] = FEAT_ORDER
+    features: list[str] = FEAT_ORDER   # kunci FEATURE_CATALOG (mentah + rekayasa)
     eval_mode: str = "acak"      # acak (5-fold) | lintas (grouped per dataset)
     scenario: str = "B"          # B nyata->nyata | A sintetis->nyata | C gabungan->nyata
+    log_target: bool = False     # modelkan ln(bobot) (galat multiplikatif)
     exp_id: int = 0
 
 
@@ -60,21 +61,9 @@ class PromoteReq(BaseModel):
     model_ver: str
 
 
-def _predict_value(bundle, ukuran: Ukuran):
-    """Bangun input sesuai fitur model lalu prediksi (sadar-fitur)."""
-    vals = {
-        "lingkar_dada_cm": ukuran.lingkar_dada_cm,
-        "panjang_badan_cm": ukuran.panjang_badan_cm if ukuran.panjang_badan_cm is not None else 0.0,
-        "tinggi_gumba_cm": ukuran.tinggi_gumba_cm if ukuran.tinggi_gumba_cm is not None else 0.0,
-    }
-    feats = bundle.get("feats", FEAT_ORDER)
-    ld = ukuran.lingkar_dada_cm
-    if bundle["kind"] == "schoorl":
-        return float(((ld + 22.0) ** 2) / 100.0)
-    if bundle["kind"] == "loglog":
-        return float(np.exp(bundle["a"] + bundle["b"] * np.log(ld)))
-    row = [vals[f] for f in feats]
-    return float(bundle["model"].predict([row])[0])
+def _predict_value(bundle, u: Ukuran):
+    """Prediksi sadar-fitur untuk semua jenis model (lihat experiment.predict_one)."""
+    return experiment.predict_one(bundle, u.lingkar_dada_cm, u.panjang_badan_cm, u.tinggi_gumba_cm)
 
 
 @app.get("/health")
@@ -112,7 +101,8 @@ def experiment_train(req: TrainReq):
         return {"error": "data latih belum ada — impor data atau panggil /prep"}
     if req.method not in experiment.METHODS:
         return {"error": f"metode tak dikenal: {req.method}"}
-    return experiment.run(csv, req.method, req.features, req.eval_mode, DATA_OUT, req.exp_id, req.scenario)
+    return experiment.run(csv, req.method, req.features, req.eval_mode, DATA_OUT,
+                          req.exp_id, req.scenario, req.log_target)
 
 
 @app.post("/synth/generate")

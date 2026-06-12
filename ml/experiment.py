@@ -28,7 +28,57 @@ METHODS = {
     "linear":  "Regresi linear berganda",
     "rf":      "Random Forest",
     "xgb":     "XGBoost",
+    "hybrid":  "Hibrida allometrik + ML (koreksi residual)",
 }
+
+# Katalog fitur: mentah + rekayasa allometrik. Nilai dihitung dari kolom mentah.
+#   ld2     = LD^2            (bobot ~ pangkat dimensi linear)
+#   ld2_pb  = LD^2 * PB       (proksi VOLUME tubuh — inti rumus Schoorl/Crevat)
+#   pb_ld   = PB / LD, tg_ld = TG / LD  (rasio bentuk: gemuk vs kurus)
+FEATURE_CATALOG = {
+    "lingkar_dada_cm":  lambda d: d["lingkar_dada_cm"],
+    "panjang_badan_cm": lambda d: d["panjang_badan_cm"],
+    "tinggi_gumba_cm":  lambda d: d["tinggi_gumba_cm"],
+    "ld2":    lambda d: d["lingkar_dada_cm"] ** 2,
+    "ld2_pb": lambda d: (d["lingkar_dada_cm"] ** 2) * d["panjang_badan_cm"],
+    "pb_ld":  lambda d: d["panjang_badan_cm"] / d["lingkar_dada_cm"],
+    "tg_ld":  lambda d: d["tinggi_gumba_cm"] / d["lingkar_dada_cm"],
+}
+# kolom mentah yang dibutuhkan tiap fitur (untuk dropna)
+_FEAT_NEEDS = {
+    "lingkar_dada_cm": ["lingkar_dada_cm"], "panjang_badan_cm": ["panjang_badan_cm"],
+    "tinggi_gumba_cm": ["tinggi_gumba_cm"], "ld2": ["lingkar_dada_cm"],
+    "ld2_pb": ["lingkar_dada_cm", "panjang_badan_cm"],
+    "pb_ld": ["lingkar_dada_cm", "panjang_badan_cm"],
+    "tg_ld": ["lingkar_dada_cm", "tinggi_gumba_cm"],
+}
+
+
+def _required_raw(feat_keys):
+    need = {"lingkar_dada_cm"}   # selalu (untuk basis allometrik/Schoorl)
+    for k in feat_keys:
+        need.update(_FEAT_NEEDS.get(k, []))
+    return list(need)
+
+
+def _build_X(df, feat_keys):
+    return np.column_stack([np.asarray(FEATURE_CATALOG[k](df), float) for k in feat_keys])
+
+
+def _row_from_raw(feat_keys, ld, pb, tg):
+    d = {"lingkar_dada_cm": float(ld),
+         "panjang_badan_cm": float(pb) if pb else float(ld) * 0.87,   # default proporsional bila kosong
+         "tinggi_gumba_cm": float(tg) if tg else float(ld) * 0.66}
+    return [float(FEATURE_CATALOG[k](d)) for k in feat_keys]
+
+
+def _rf():
+    return RandomForestRegressor(n_estimators=300, random_state=SEED, n_jobs=-1)
+
+
+def _xgb():
+    from xgboost import XGBRegressor
+    return XGBRegressor(n_estimators=300, max_depth=4, learning_rate=0.05, random_state=SEED, n_jobs=-1)
 
 
 def _metrics(y, p):
@@ -50,22 +100,30 @@ def _schoorl(ld):
     return ((np.asarray(ld, float) + 22.0) ** 2) / 100.0
 
 
-def _fit_predict(method, Xtr, ytr, Xte):
-    if method == "linear":
-        return LinearRegression().fit(Xtr, ytr).predict(Xte)
+def _base_model(method):
+    return {"linear": LinearRegression, "rf": _rf, "xgb": _xgb}[method]()
+
+
+def _fit_predict(method, Xtr, ytr, Xte, ld_tr, ld_te, log_target=False):
+    """ld_tr/ld_te = array lingkar dada (untuk basis allometrik/Schoorl/loglog)."""
+    if method == "schoorl":
+        return _schoorl(ld_te)
     if method == "loglog":
-        ld_tr, ld_te = Xtr[:, 0], Xte[:, 0]
         b, a = np.polyfit(np.log(ld_tr), np.log(ytr), 1)
         return np.exp(a + b * np.log(ld_te))
-    if method == "rf":
-        return RandomForestRegressor(n_estimators=300, random_state=SEED, n_jobs=-1).fit(Xtr, ytr).predict(Xte)
-    if method == "xgb":
-        from xgboost import XGBRegressor
-        return XGBRegressor(n_estimators=300, max_depth=4, learning_rate=0.05,
-                            random_state=SEED, n_jobs=-1).fit(Xtr, ytr).predict(Xte)
-    if method == "schoorl":
-        return _schoorl(Xte[:, 0])
-    raise ValueError(f"metode tak dikenal: {method}")
+    if method == "hybrid":
+        # basis allometrik (a*LD^b) menangani biologi & ekstrapolasi; ML mengoreksi residual
+        b, a = np.polyfit(np.log(ld_tr), np.log(ytr), 1)
+        base_tr = np.exp(a + b * np.log(ld_tr))
+        base_te = np.exp(a + b * np.log(ld_te))
+        ml = _rf().fit(Xtr, ytr - base_tr)
+        return base_te + ml.predict(Xte)
+    # metode ML/linear biasa, dengan opsi target log (galat multiplikatif)
+    m = _base_model(method)
+    if log_target:
+        m.fit(Xtr, np.log(ytr))
+        return np.exp(m.predict(Xte))
+    return m.fit(Xtr, ytr).predict(Xte)
 
 
 def _splits(X, y, g, eval_mode):
@@ -75,44 +133,67 @@ def _splits(X, y, g, eval_mode):
     return list(KFold(n_splits=5, shuffle=True, random_state=SEED).split(X))
 
 
-def _final_bundle(method, X, y, feats, model_ver):
-    """Latih final di seluruh data + simpan resid_std untuk interval p10/p90."""
+def _final_bundle(method, X, y, ld, feat_keys, log_target, model_ver):
+    """Latih final di seluruh data + simpan info untuk serving & interval p10/p90."""
+    bundle = {"method": method, "feat_keys": feat_keys, "log_target": bool(log_target),
+              "model_ver": model_ver}
     if method == "schoorl":
-        pred = _schoorl(X[:, 0])
-        bundle = {"kind": "schoorl", "feats": feats}
+        pred = _schoorl(ld)
     elif method == "loglog":
-        b, a = np.polyfit(np.log(X[:, 0]), np.log(y), 1)
-        pred = np.exp(a + b * np.log(X[:, 0]))
-        bundle = {"kind": "loglog", "a": float(a), "b": float(b), "feats": feats}
+        b, a = np.polyfit(np.log(ld), np.log(y), 1)
+        bundle.update({"a": float(a), "b": float(b)})
+        pred = np.exp(a + b * np.log(ld))
+    elif method == "hybrid":
+        b, a = np.polyfit(np.log(ld), np.log(y), 1)
+        base = np.exp(a + b * np.log(ld))
+        ml = _rf().fit(X, y - base)
+        bundle.update({"a": float(a), "b": float(b), "model": ml})
+        pred = base + ml.predict(X)
     else:
-        m = (LinearRegression() if method == "linear"
-             else RandomForestRegressor(n_estimators=300, random_state=SEED, n_jobs=-1) if method == "rf"
-             else __import__("xgboost").XGBRegressor(n_estimators=300, max_depth=4,
-                  learning_rate=0.05, random_state=SEED, n_jobs=-1))
-        m.fit(X, y)
-        pred = m.predict(X)
-        bundle = {"kind": "sklearn", "model": m, "feats": feats}
+        m = _base_model(method)
+        if log_target:
+            m.fit(X, np.log(y)); pred = np.exp(m.predict(X))
+        else:
+            m.fit(X, y); pred = m.predict(X)
+        bundle["model"] = m
     bundle["resid_std"] = float(np.std(y - pred))
-    bundle["model_ver"] = model_ver
     return bundle
 
 
-def _importance(method, X, y, feats):
-    if method in ("schoorl",):
+def predict_one(bundle, ld, pb, tg):
+    """Prediksi satu ekor dari LD/PB/TG (dipakai /predict/bobot)."""
+    method = bundle.get("method") or bundle.get("kind", "linear")
+    ld = float(ld)
+    if method == "schoorl":
+        return float(_schoorl(ld))
+    if method == "loglog":
+        return float(np.exp(bundle["a"] + bundle["b"] * np.log(ld)))
+    keys = bundle.get("feat_keys") or bundle.get("feats") or ALL_FEATS
+    row = _row_from_raw(keys, ld, pb, tg)
+    if method == "hybrid":
+        base = float(np.exp(bundle["a"] + bundle["b"] * np.log(ld)))
+        return base + float(bundle["model"].predict([row])[0])
+    p = float(bundle["model"].predict([row])[0])
+    return float(np.exp(p)) if bundle.get("log_target") else p
+
+
+def _importance(method, X, y, ld, feat_keys):
+    if method == "schoorl":
         return {"catatan": "rumus tetap, tanpa parameter terlatih"}
     if method == "loglog":
-        b, a = np.polyfit(np.log(X[:, 0]), np.log(y), 1)
+        b, a = np.polyfit(np.log(ld), np.log(y), 1)
         return {"eksponen_LD (b)": round(float(b), 3), "konstanta (a)": round(float(a), 3)}
     if method == "linear":
         m = LinearRegression().fit(X, y)
-        return {f: round(float(c), 3) for f, c in zip(feats, m.coef_)}
-    if method in ("rf", "xgb"):
-        if method == "rf":
-            m = RandomForestRegressor(n_estimators=300, random_state=SEED, n_jobs=-1).fit(X, y)
-        else:
-            m = __import__("xgboost").XGBRegressor(n_estimators=300, max_depth=4,
-                learning_rate=0.05, random_state=SEED, n_jobs=-1).fit(X, y)
-        return {f: round(float(v), 4) for f, v in zip(feats, m.feature_importances_)}
+        return {f: round(float(c), 4) for f, c in zip(feat_keys, m.coef_)}
+    if method in ("rf", "xgb", "hybrid"):
+        base = 0.0
+        if method == "hybrid":
+            b, a = np.polyfit(np.log(ld), np.log(y), 1)
+            base = np.exp(a + b * np.log(ld))
+        target = y - base
+        m = (_xgb() if method == "xgb" else _rf()).fit(X, target)
+        return {f: round(float(v), 4) for f, v in zip(feat_keys, m.feature_importances_)}
     return {}
 
 
@@ -133,12 +214,15 @@ def _eval_block(y_eval, p_eval):
     return metrics, diagnostics
 
 
-def run(csv, method, feats, eval_mode, outdir, exp_id, scenario="B"):
-    """Skenario sumber data:
-      B = nyata->nyata (CV, angka utama); A = sintetis->nyata; C = gabungan->nyata.
+def run(csv, method, feats, eval_mode, outdir, exp_id, scenario="B", log_target=False):
+    """Latih+evaluasi satu eksperimen.
+    feats = daftar kunci FEATURE_CATALOG (mentah + rekayasa). log_target = modelkan ln(bobot).
+    Skenario: B nyata->nyata (CV); A sintetis->nyata; C gabungan->nyata.
     """
-    feats = [f for f in feats if f in ALL_FEATS] or ["lingkar_dada_cm"]
-    df = pd.read_csv(csv).dropna(subset=feats + [TARGET])
+    feats = [f for f in feats if f in FEATURE_CATALOG] or ["lingkar_dada_cm"]
+    if method in ("schoorl", "loglog"):
+        log_target = False   # sudah menangani skala sendiri
+    df = pd.read_csv(csv).dropna(subset=_required_raw(feats) + [TARGET])
     if "source" not in df:
         df["source"] = "public"
     if GROUP not in df:
@@ -149,35 +233,38 @@ def run(csv, method, feats, eval_mode, outdir, exp_id, scenario="B"):
     if scenario == "B" or synth.empty:
         scenario = "B"
         sub = real.dropna(subset=[GROUP])
-        X, y, g = sub[feats].values, sub[TARGET].values.astype(float), sub[GROUP].values
+        X = _build_X(sub, feats); y = sub[TARGET].values.astype(float)
+        ld = sub["lingkar_dada_cm"].values.astype(float); g = sub[GROUP].values
         oof = np.full(len(y), np.nan)
         for tr, te in _splits(X, y, g, eval_mode):
-            oof[te] = _fit_predict(method, X[tr], y[tr], X[te])
+            oof[te] = _fit_predict(method, X[tr], y[tr], X[te], ld[tr], ld[te], log_target)
         m = ~np.isnan(oof)
         y_eval, p_eval = y[m], oof[m]
-        finalX, finalY = X, y
+        finalX, finalY, finalLD = X, y, ld
     else:
         real_train, real_test = _real_holdout(real)
         train_df = synth if scenario == "A" else pd.concat([synth, real_train], ignore_index=True)
-        Xtr, ytr = train_df[feats].values, train_df[TARGET].values.astype(float)
+        Xtr = _build_X(train_df, feats); ytr = train_df[TARGET].values.astype(float)
+        ld_tr = train_df["lingkar_dada_cm"].values.astype(float)
+        Xte = _build_X(real_test, feats); ld_te = real_test["lingkar_dada_cm"].values.astype(float)
         y_eval = real_test[TARGET].values.astype(float)
-        p_eval = _fit_predict(method, Xtr, ytr, real_test[feats].values)
-        finalX, finalY = Xtr, ytr
+        p_eval = _fit_predict(method, Xtr, ytr, Xte, ld_tr, ld_te, log_target)
+        finalX, finalY, finalLD = Xtr, ytr, ld_tr
 
     metrics, diagnostics = _eval_block(y_eval, p_eval)
 
     os.makedirs(os.path.join(outdir, "experiments"), exist_ok=True)
     model_ver = f"exp{exp_id}-{method}"
-    bundle = _final_bundle(method, finalX, finalY, feats, model_ver)
-    art = os.path.join(outdir, "experiments", f"{model_ver}.joblib")
-    joblib.dump(bundle, art)
+    bundle = _final_bundle(method, finalX, finalY, finalLD, feats, log_target, model_ver)
+    joblib.dump(bundle, os.path.join(outdir, "experiments", f"{model_ver}.joblib"))
 
     return {
         "model_ver": model_ver, "method": method,
         "method_label": METHODS.get(method, method), "features": feats,
-        "eval_mode": eval_mode, "scenario": scenario, "n_rows": int(len(y_eval)),
-        "metrics": metrics, "importance": _importance(method, finalX, finalY, feats),
-        "diagnostics": diagnostics, "artifact": art,
+        "log_target": bool(log_target), "eval_mode": eval_mode, "scenario": scenario,
+        "n_rows": int(len(y_eval)), "metrics": metrics,
+        "importance": _importance(method, finalX, finalY, finalLD, feats),
+        "diagnostics": diagnostics,
     }
 
 

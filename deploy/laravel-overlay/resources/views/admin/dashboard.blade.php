@@ -2,6 +2,13 @@
 @section('heading', 'Dashboard Admin')
 
 @section('page')
+    <x-help title="Membaca dashboard ini">
+        <p>Empat kartu atas = ukuran data & aktivitas. Baris berikutnya: <b>status service ML</b> (hijau = Python aktif &
+        model termuat), <b>model aktif</b> (yang melayani peternak), dan <b>tren akurasi</b> (MAPE tiap eksperimen menurut
+        waktu — turun = platform makin akurat seiring data/metode membaik). Tabel bawah = <b>audit trail</b>: jejak siapa
+        melakukan apa (validasi, latih, promosi, login) demi akuntabilitas.</p>
+    </x-help>
+
     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         @foreach ([
             ['Pengguna', $stats['users'] ?? 0, '👥'],

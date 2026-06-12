@@ -24,6 +24,12 @@
     <div class="bg-white rounded-2xl border border-brand-100 shadow-sm p-6">
         <h2 class="font-bold text-brand-800 mb-1">Ukur & Estimasi</h2>
         <p class="text-xs text-brand-500 mb-4">Masukkan ukuran tubuh (cm). Sistem menghitung estimasi bobot — Anda tidak perlu menimbang.</p>
+        <x-help title="Kenapa hasilnya berupa rentang (p10–p90)?">
+            <p>Estimasi tak pernah pasti 100%. Sistem memberi <b>rentang wajar</b>: kemungkinan besar (≈80%) bobot asli ada
+            di antara p10 dan p90. Ini lebih jujur daripada satu angka, dan membantu Anda menawar dengan percaya diri.
+            Cukup ukur <b>lingkar dada</b> (melingkari dada di belakang kaki depan) — panjang badan & tinggi gumba opsional
+            untuk menambah ketelitian.</p>
+        </x-help>
         <form method="POST" action="{{ route('pengukuran.store', $ternak) }}" class="space-y-3">
             @csrf
             <div>

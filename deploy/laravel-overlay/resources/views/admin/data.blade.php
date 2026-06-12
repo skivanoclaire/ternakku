@@ -2,6 +2,17 @@
 @section('heading', 'Kelola Data Latih')
 
 @section('page')
+<x-help title="Dari mana data latih berasal?" :open="true">
+    <p>Model belajar dari pasangan <b>ukuran tubuh + bobot timbang asli</b> (ground truth). Bobot asli ini dikumpulkan
+    <b>researcher</b> — bukan peternak (peternak justru ingin <i>diprediksi</i> bobotnya, jadi tak masuk akal memintanya).</p>
+    <ul class="list-disc pl-5 space-y-1">
+        <li><b>Impor CSV</b>: unggah dataset sapi nyata (publik/jurnal/lapangan bertimbangan) → tersimpan source=public.</li>
+        <li><b>Data sintetis</b>: dibangkitkan dari rumus allometrik (berlabel) — untuk bootstrap & skenario validasi A/C.</li>
+        <li>Kartu di atas memantau komposisi: total, data publik, data peternak (tanpa bobot), dan yang punya ground truth.</li>
+    </ul>
+    <p>Tiap kali data berubah, sistem mengekspornya ke ML sebelum training berikutnya — jadi model selalu memakai data terbaru.</p>
+</x-help>
+
 <p class="text-sm text-brand-600/80">
     Sumber ground truth untuk pelatihan diimpor di sini oleh researcher (dataset sapi nyata Indonesia/publik,
     berisi ukuran tubuh <b>dan</b> bobot timbang). Peternak tidak menyumbang bobot.

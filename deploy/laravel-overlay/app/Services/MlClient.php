@@ -54,15 +54,16 @@ class MlClient
         return Http::timeout(60)->post($this->base . '/eda')->json() ?? ['error' => 'gagal eda'];
     }
 
-    /** Latih satu eksperimen (metode + fitur + mode evaluasi + skenario). */
-    public function trainExperiment(string $method, array $features, string $evalMode, int $expId, string $scenario = 'B'): array
+    /** Latih satu eksperimen (metode + fitur + mode evaluasi + skenario + target log). */
+    public function trainExperiment(string $method, array $features, string $evalMode, int $expId, string $scenario = 'B', bool $logTarget = false): array
     {
         $res = Http::timeout(300)->post($this->base . '/experiment/train', [
-            'method'    => $method,
-            'features'  => array_values($features),
-            'eval_mode' => $evalMode,
-            'scenario'  => $scenario,
-            'exp_id'    => $expId,
+            'method'     => $method,
+            'features'   => array_values($features),
+            'eval_mode'  => $evalMode,
+            'scenario'   => $scenario,
+            'log_target' => $logTarget,
+            'exp_id'     => $expId,
         ]);
         return $res->json() ?? ['error' => 'ml tidak merespons saat training'];
     }

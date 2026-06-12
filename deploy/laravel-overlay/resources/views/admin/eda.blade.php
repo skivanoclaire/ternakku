@@ -2,6 +2,13 @@
 @section('heading', 'Eksplorasi & Kualitas Data')
 
 @section('page')
+<x-help title="Untuk apa Eksplorasi Data (EDA)?" :open="true">
+    <p>Sebelum melatih, pahami dulu datanya — langkah ilmiah wajib. Halaman ini menunjukkan <b>statistik tiap kolom</b>
+    (rentang, nilai kosong), <b>korelasi lingkar dada→bobot</b>, dan <b>sebaran titik</b>.</p>
+    <p><b>Insight kunci proyek ini</b>: korelasi LD–bobot tinggi (mendekati 1) berarti lingkar dada penanda bobot yang kuat;
+    bila rendah, dataset itu "sulit" dan tak ada model yang bisa akurat di sana — bukti bahwa <b>kualitas data lebih
+    menentukan daripada pilihan model</b>.</p>
+</x-help>
 @if (isset($eda['error']))
     <div class="rounded-xl bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm">{{ $eda['error'] }}</div>
 @else

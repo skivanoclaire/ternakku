@@ -2,6 +2,14 @@
 @section('heading', 'Versi & Promosi Model')
 
 @section('page')
+<x-help title="Apa arti 'promosi' & 'model aktif'?" :open="true">
+    <p>Setiap pelatihan menghasilkan satu versi model (<code>model_ver</code>) yang tersimpan. <b>Hanya satu yang "aktif"</b>
+    pada satu waktu — model aktif inilah yang dipakai menghitung estimasi untuk peternak. <b>Promosikan</b> = jadikan aktif.</p>
+    <p>Disarankan promosikan model yang: (1) <b>mengalahkan baseline Schoorl</b>, dan (2) dievaluasi pada <b>skenario B
+    (data nyata)</b>. Bila versi baru ternyata buruk di lapangan, cukup promosikan kembali versi lama (rollback). Tiap
+    prediksi menyimpan <code>model_ver</code> sehingga bisa diaudit & di-A/B-test.</p>
+</x-help>
+
 <p class="text-sm text-brand-600/80">
     Satu model aktif pada satu waktu — itulah yang melayani estimasi bobot ke peternak.
     Promosikan model terbaik (disarankan: yang mengalahkan baseline pada evaluasi data nyata).

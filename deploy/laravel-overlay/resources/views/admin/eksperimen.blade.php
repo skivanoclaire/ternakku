@@ -4,8 +4,10 @@
 @section('page')
 <div class="flex flex-wrap items-center gap-3">
     <span class="px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-sm">Fitur: {{ implode(', ', $exp->features ?? []) }}</span>
+    <span class="px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-sm">Skenario: {{ $exp->scenario ?? 'B' }}</span>
     <span class="px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-sm">Eval: {{ $exp->eval_mode }}</span>
-    <span class="px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-sm">n = {{ number_format($exp->n_rows) }}</span>
+    @if ($exp->log_target)<span class="px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-sm">target: ln(bobot)</span>@endif
+    <span class="px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-sm">n uji = {{ number_format($exp->n_rows) }}</span>
     @if ($exp->is_active)
         <span class="px-3 py-1 rounded-full bg-green-600 text-white text-sm">★ Model aktif</span>
     @else
@@ -16,6 +18,12 @@
     @endif
     <a href="{{ route('admin.leaderboard') }}" class="text-sm text-brand-600 hover:underline ml-auto">← leaderboard</a>
 </div>
+
+<x-help title="Cara membaca halaman ini" :open="true">
+    <p>Halaman ini menilai <b>satu model</b> pada data uji yang belum pernah dilihatnya. Tujuh kartu = <b>metrik akurasi</b>;
+    dua grafik = <b>diagnosa</b> (di mana model meleset, bukan cuma seberapa); bagian bawah = <b>interpretabilitas</b>
+    (kenapa model menebak begitu). Bila model ini terbaik, klik <b>Jadikan model aktif</b> agar dipakai melayani estimasi peternak.</p>
+</x-help>
 
 {{-- Metrik --}}
 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
@@ -31,6 +39,18 @@
     @endforeach
 </div>
 
+<x-help title="Arti tiap metrik">
+    <ul class="list-disc pl-5 space-y-1">
+        <li><b>MAPE</b> (%): rata-rata error relatif — metrik utama, paling mudah dijelaskan ke peternak. Makin kecil makin baik.</li>
+        <li><b>MAE</b> (kg): rata-rata meleset berapa kg. Konkret.</li>
+        <li><b>RMSE</b> (kg): seperti MAE tapi menghukum error besar lebih keras — peka pada kesalahan ekstrem.</li>
+        <li><b>R²</b> (0–1): proporsi variasi bobot yang dijelaskan model. Mendekati 1 = sangat baik; negatif = lebih buruk dari menebak rata-rata.</li>
+        <li><b>Bias</b> (kg): rata-rata error bertanda. Positif = cenderung over-estimate, negatif = under-estimate. Idealnya ~0.</li>
+        <li><b>Coverage</b> (%): berapa % bobot asli jatuh dalam rentang p10–p90. Idealnya ~80% (interval jujur).</li>
+        <li><b>Interval</b> (kg): lebar rata-rata p10–p90. Sempit + coverage tepat = model percaya diri & benar.</li>
+    </ul>
+</x-help>
+
 {{-- Grafik diagnostik --}}
 <div class="grid md:grid-cols-2 gap-6">
     <div class="bg-white rounded-2xl border border-brand-100 shadow-sm p-5">
@@ -45,9 +65,17 @@
     </div>
 </div>
 
+<x-help title="Cara membaca dua grafik di atas">
+    <p><b>Prediksi vs Aktual</b>: tiap titik satu ekor sapi (x=bobot asli, y=tebakan model). Garis putus-putus = tebakan
+    sempurna. Titik di atas garis = over-estimate, di bawah = under-estimate. Makin rapat ke garis, makin akurat.</p>
+    <p><b>Sebaran Residual</b>: histogram selisih (aktual − prediksi). Idealnya <b>simetris & memuncak di 0</b>. Bila miring
+    atau melebar untuk sapi besar → pertanda perlu target log / model lain. Pola "corong" = heteroskedastisitas.</p>
+</x-help>
+
 {{-- Interpretabilitas --}}
 <div class="bg-white rounded-2xl border border-brand-100 shadow-sm p-5">
     <h2 class="font-bold text-brand-800 mb-3">Interpretabilitas</h2>
+    <p class="text-xs text-brand-500 mb-3">Menjawab "kenapa model menebak segini": untuk regresi = <b>koefisien</b> tiap fitur; untuk pohon (RF/XGBoost/hibrida) = <b>feature importance</b> (seberapa sering & berguna fitur dipakai); untuk log-log = <b>eksponen LD</b> (idealnya ~2,5–3, sesuai biologi).</p>
     @if ($exp->importance)
         <div class="flex flex-wrap gap-2">
             @foreach ($exp->importance as $k => $v)

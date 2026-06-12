@@ -1,0 +1,23 @@
+# Deployment RINGKAS — hanya Modul 1 (estimasi bobot).
+# Nginx mem-proxy domain langsung ke FastAPI (ml). Tanpa Laravel/db/redis.
+# Pakai:  docker compose -f docker-compose.modul1.yml up -d
+services:
+  ml:
+    build: ./ml
+    expose: ["8000"]
+    environment:
+      - DATA_RAW=/app/data/raw
+      - DATA_OUT=/app/data/out
+    volumes:
+      - ./data:/app/data        # data/raw (input) & data/out (model + metrik)
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./nginx/modul1:/etc/nginx/conf.d:ro
+      - ./nginx/certbot/www:/var/www/certbot:ro
+      - ./nginx/certbot/conf:/etc/letsencrypt:ro
+    depends_on: [ml]
+    restart: unless-stopped

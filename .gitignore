@@ -8,6 +8,9 @@ data/out/
 # Lingkungan & rahasia
 .env
 
+# Sertifikat TLS (berisi private key — JANGAN di-commit)
+nginx/certbot/
+
 # Python
 __pycache__/
 *.pyc

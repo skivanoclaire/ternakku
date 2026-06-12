@@ -1,16 +1,19 @@
-"""main.py — FastAPI service TernakKu (Modul 1: estimasi bobot).
+"""main.py — FastAPI service TernakKu (Modul 1: estimasi bobot + researcher workbench).
 
 Dipanggil Laravel via jaringan internal Docker (http://ml:8000). Tidak terekspos publik.
-Endpoint mengikuti kontrak API di DESIGN §9.
 
-  GET  /health         -> status & apakah model sudah ada
-  POST /prep           -> bersihkan dataset publik -> pengukuran_public.csv
-  POST /train          -> latih ulang model di VM (Opsi: VM latih sendiri)
-  POST /predict/bobot  -> estimasi bobot + interval p10/p90 + model_ver
+  GET  /health             -> status & apakah model aktif ada
+  POST /prep               -> bersihkan dataset publik -> pengukuran_public.csv
+  POST /train              -> latih cepat (pilih terbaik) -> model aktif
+  POST /eda                -> statistik & korelasi dataset (untuk halaman EDA)
+  POST /experiment/train   -> latih SATU metode+fitur -> metrik, diagnostik, artefak
+  POST /experiment/promote -> jadikan artefak eksperimen sbg model aktif
+  POST /predict/bobot      -> estimasi bobot + interval p10/p90 + model_ver (model aktif)
 
 Jalankan lokal: uvicorn main:app --reload
 """
 import os
+import shutil
 import numpy as np
 import joblib
 from fastapi import FastAPI
@@ -18,13 +21,15 @@ from pydantic import BaseModel
 
 import prep_data
 import train_modul1
+import experiment
 
-app = FastAPI(title="TernakKu ML — Modul 1")
+app = FastAPI(title="TernakKu ML — Modul 1 + Researcher")
 
 DATA_RAW = os.getenv("DATA_RAW", "data/raw")
 DATA_OUT = os.getenv("DATA_OUT", "data/out")
 CSV = os.path.join(DATA_OUT, "pengukuran_public.csv")
 MODEL_PATH = os.path.join(DATA_OUT, "model_modul1.joblib")
+FEAT_ORDER = ["lingkar_dada_cm", "panjang_badan_cm", "tinggi_gumba_cm"]
 
 
 class Ukuran(BaseModel):
@@ -33,9 +38,31 @@ class Ukuran(BaseModel):
     tinggi_gumba_cm: float | None = None
 
 
-def _predict(bundle, row):
+class TrainReq(BaseModel):
+    method: str = "linear"
+    features: list[str] = FEAT_ORDER
+    eval_mode: str = "acak"      # acak (5-fold) | lintas (grouped per dataset)
+    exp_id: int = 0
+
+
+class PromoteReq(BaseModel):
+    model_ver: str
+
+
+def _predict_value(bundle, ukuran: Ukuran):
+    """Bangun input sesuai fitur model lalu prediksi (sadar-fitur)."""
+    vals = {
+        "lingkar_dada_cm": ukuran.lingkar_dada_cm,
+        "panjang_badan_cm": ukuran.panjang_badan_cm if ukuran.panjang_badan_cm is not None else 0.0,
+        "tinggi_gumba_cm": ukuran.tinggi_gumba_cm if ukuran.tinggi_gumba_cm is not None else 0.0,
+    }
+    feats = bundle.get("feats", FEAT_ORDER)
+    ld = ukuran.lingkar_dada_cm
+    if bundle["kind"] == "schoorl":
+        return float(((ld + 22.0) ** 2) / 100.0)
     if bundle["kind"] == "loglog":
-        return float(np.exp(bundle["a"] + bundle["b"] * np.log(row[0])))
+        return float(np.exp(bundle["a"] + bundle["b"] * np.log(ld)))
+    row = [vals[f] for f in feats]
     return float(bundle["model"].predict([row])[0])
 
 
@@ -46,7 +73,6 @@ def health():
 
 @app.post("/prep")
 def prep():
-    """Bersihkan dataset publik (mengisi data/out/pengukuran_public.csv)."""
     import sys
     sys.argv = ["prep_data.py", "--indir", DATA_RAW, "--outdir", DATA_OUT]
     prep_data.main()
@@ -55,25 +81,43 @@ def prep():
 
 @app.post("/train")
 def train(best: str | None = None):
-    """Latih ulang model di VM. `best` opsional: linear|loglog|rf|xgb."""
     if not os.path.exists(CSV):
         return {"error": f"{CSV} belum ada — panggil /prep dulu"}
-    metrics = train_modul1.run(CSV, DATA_OUT, best=best)
-    return metrics
+    return train_modul1.run(CSV, DATA_OUT, best=best)
+
+
+@app.post("/eda")
+def eda():
+    if not os.path.exists(CSV):
+        return {"error": f"{CSV} belum ada — panggil /prep dulu"}
+    return experiment.eda(CSV)
+
+
+@app.post("/experiment/train")
+def experiment_train(req: TrainReq):
+    if not os.path.exists(CSV):
+        return {"error": f"{CSV} belum ada — panggil /prep dulu"}
+    if req.method not in experiment.METHODS:
+        return {"error": f"metode tak dikenal: {req.method}"}
+    return experiment.run(CSV, req.method, req.features, req.eval_mode, DATA_OUT, req.exp_id)
+
+
+@app.post("/experiment/promote")
+def experiment_promote(req: PromoteReq):
+    art = os.path.join(DATA_OUT, "experiments", f"{req.model_ver}.joblib")
+    if not os.path.exists(art):
+        return {"error": f"artefak {req.model_ver} tidak ditemukan"}
+    shutil.copyfile(art, MODEL_PATH)     # jadikan model aktif yang melayani /predict
+    return {"ok": True, "model_aktif": req.model_ver}
 
 
 @app.post("/predict/bobot")
 def predict_bobot(u: Ukuran):
     if not os.path.exists(MODEL_PATH):
-        return {"error": "model belum dilatih — panggil /train dulu"}
+        return {"error": "model belum dilatih — promosikan/latih model dulu"}
     bundle = joblib.load(MODEL_PATH)
-    # isi fitur kosong dengan 0 (model linear/rf tetap berfungsi; loglog hanya pakai LD)
-    row = [u.lingkar_dada_cm,
-           u.panjang_badan_cm if u.panjang_badan_cm is not None else 0.0,
-           u.tinggi_gumba_cm if u.tinggi_gumba_cm is not None else 0.0]
-    kg = _predict(bundle, row)
+    kg = _predict_value(bundle, u)
     sd = bundle.get("resid_std", 0.0)
-    # interval ~p10/p90 dengan aproksimasi normal (z=1.2816)
     return {
         "bobot_estimasi_kg": round(kg, 1),
         "p10": round(kg - 1.2816 * sd, 1),

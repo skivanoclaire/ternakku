@@ -14,8 +14,23 @@ if docker ps >/dev/null 2>&1; then DK="docker"; else DK="sudo docker"; fi
 DC="$DK compose --env-file /dev/null"
 echo "▶ memakai: $DK"
 
-# --- stack.env (kredensial container) ---
-[ -f stack.env ] || { cp stack.env.example stack.env; echo "▶ stack.env dibuat dari contoh — ganti POSTGRES_PASSWORD bila perlu"; }
+# --- stack.env (kredensial container; tidak di-commit) ---
+if [ ! -f stack.env ]; then
+  if [ -f stack.env.example ]; then
+    cp stack.env.example stack.env
+  else
+    # fallback bila contoh tidak ada (mis. fresh clone) — tulis default, GANTI password!
+    cat > stack.env <<'EOF'
+POSTGRES_DB=ternakku
+POSTGRES_USER=ternakku
+POSTGRES_PASSWORD=TernakkuDB2026_ganti
+APP_ENV=production
+ML_URL=http://ml:8000
+REDIS_HOST=redis
+EOF
+  fi
+  echo "▶ stack.env dibuat — GANTI POSTGRES_PASSWORD bila perlu"
+fi
 DBPASS="$(sed -n 's/^POSTGRES_PASSWORD=//p' stack.env)"
 
 # --- hentikan stack ringan (Modul 1) agar port 80/443 bebas ---

@@ -41,4 +41,36 @@ class MlClient
     {
         return Http::timeout(5)->get($this->base . '/health')->json() ?? ['status' => 'down'];
     }
+
+    /** Pastikan dataset publik tersedia (idempotent). */
+    public function prep(): array
+    {
+        return Http::timeout(120)->post($this->base . '/prep')->json() ?? ['error' => 'gagal prep'];
+    }
+
+    /** Statistik & korelasi dataset (halaman EDA). */
+    public function eda(): array
+    {
+        return Http::timeout(60)->post($this->base . '/eda')->json() ?? ['error' => 'gagal eda'];
+    }
+
+    /** Latih satu eksperimen (metode + fitur + mode evaluasi). */
+    public function trainExperiment(string $method, array $features, string $evalMode, int $expId): array
+    {
+        $res = Http::timeout(300)->post($this->base . '/experiment/train', [
+            'method'    => $method,
+            'features'  => array_values($features),
+            'eval_mode' => $evalMode,
+            'exp_id'    => $expId,
+        ]);
+        return $res->json() ?? ['error' => 'ml tidak merespons saat training'];
+    }
+
+    /** Jadikan artefak eksperimen sebagai model aktif (melayani peternak). */
+    public function promote(string $modelVer): array
+    {
+        return Http::timeout(30)->post($this->base . '/experiment/promote', [
+            'model_ver' => $modelVer,
+        ])->json() ?? ['error' => 'gagal promosi'];
+    }
 }

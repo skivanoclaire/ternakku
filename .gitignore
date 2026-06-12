@@ -8,6 +8,7 @@ data/out/
 # Lingkungan & rahasia
 .env
 stack.env
+stack.env.example
 
 # Sertifikat TLS (berisi private key — JANGAN di-commit)
 nginx/certbot/

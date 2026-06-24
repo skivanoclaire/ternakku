@@ -9,8 +9,8 @@
         ['admin.latih',      'Latih Model',   '⚙️'],
         ['admin.leaderboard','Leaderboard',   '🏆'],
         ['admin.model',      'Model Aktif',   '🚀'],
-        ['admin.belajar',    'Modul Belajar', '📚'],
         ['admin.pengguna',   'Pengguna',      '👥'],
+        ['admin.belajar',    'Modul Belajar', '📚'],
     ];
 @endphp
 

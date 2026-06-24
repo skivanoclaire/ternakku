@@ -11,6 +11,7 @@
         ['admin.model',      'Model Aktif',   '🚀'],
         ['admin.uji',        'Uji Model',     '🧪'],
         ['admin.pengguna',   'Pengguna',      '👥'],
+        ['admin.hitung',     'Perhitungan Manual', '📐'],
         ['admin.belajar',    'Modul Belajar', '📚'],
     ];
 @endphp

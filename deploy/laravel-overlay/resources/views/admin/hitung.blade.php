@@ -26,8 +26,7 @@
 
 @section('page')
 <p class="text-brand-600/80">
-    Halaman ini menjabarkan <b>cara menghitung manual</b> setiap angka di platform — supaya bisa dijelaskan ke dosen &
-    disalin ke laporan. Tiap bagian: <b>rumus persis</b> (sama dengan kode), <b>contoh langkah-demi-langkah</b> dengan
+    Halaman ini menjabarkan <b>cara menghitung manual</b> setiap angka di platform. Tiap bagian: <b>rumus persis</b> (sama dengan kode), <b>contoh langkah-demi-langkah</b> dengan
     angka nyata, dan sebagian dilengkapi <b>kalkulator interaktif</b> (ketik angka → hasil langsung).
 </p>
 

@@ -79,8 +79,8 @@ class AuthController extends Controller
     /** Arahkan ke beranda peran masing-masing. */
     protected function home()
     {
-        return redirect()->intended(
-            Auth::user()->isAdmin() ? route('admin.dashboard') : route('ternak.index')
-        );
+        // admin & student masuk area admin; peternak ke portal ternak.
+        $kePanel = Auth::user()->hasRole(['admin', 'student']);
+        return redirect()->intended($kePanel ? route('admin.dashboard') : route('ternak.index'));
     }
 }

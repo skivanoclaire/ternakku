@@ -30,8 +30,9 @@ Route::middleware(['auth', 'role:peternak'])->group(function () {
     Route::post('/ternak/{ternak}/ukur', [PengukuranController::class, 'store'])->name('pengukuran.store');
 });
 
-// --- Area admin (RBAC: auth + role:admin) ---
-Route::middleware(['auth', 'role:admin'])
+// --- Area admin (RBAC) ---
+// admin + student boleh masuk semua menu; rute Pengguna dibatasi admin saja (lihat bawah).
+Route::middleware(['auth', 'role:admin,student'])
     ->prefix('admin')->name('admin.')
     ->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
@@ -50,10 +51,12 @@ Route::middleware(['auth', 'role:admin'])
         Route::post('/model/{experiment}/promote', [ResearcherController::class, 'promote'])->name('model.promote');
         Route::get('/ekspor', [ResearcherController::class, 'exportLeaderboard'])->name('ekspor');
 
-        // Manajemen pengguna & peran
-        Route::get('/pengguna', [UserController::class, 'index'])->name('pengguna');
-        Route::post('/pengguna', [UserController::class, 'store'])->name('pengguna.store');
-        Route::post('/pengguna/{user}/aktif', [UserController::class, 'toggleActive'])->name('pengguna.aktif');
-        Route::post('/pengguna/{user}/peran', [UserController::class, 'setRole'])->name('pengguna.peran');
-        Route::post('/pengguna/{user}/reset-password', [UserController::class, 'resetPassword'])->name('pengguna.reset');
+        // Manajemen pengguna & peran — KHUSUS admin (student tidak boleh).
+        Route::middleware('role:admin')->group(function () {
+            Route::get('/pengguna', [UserController::class, 'index'])->name('pengguna');
+            Route::post('/pengguna', [UserController::class, 'store'])->name('pengguna.store');
+            Route::post('/pengguna/{user}/aktif', [UserController::class, 'toggleActive'])->name('pengguna.aktif');
+            Route::post('/pengguna/{user}/peran', [UserController::class, 'setRole'])->name('pengguna.peran');
+            Route::post('/pengguna/{user}/reset-password', [UserController::class, 'resetPassword'])->name('pengguna.reset');
+        });
     });

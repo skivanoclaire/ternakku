@@ -22,6 +22,7 @@
         </div>
         <nav class="flex-1 p-4 space-y-1 text-sm">
             @foreach ($nav as [$route, $label, $icon])
+                @continue($route === 'admin.pengguna' && ! auth()->user()->isAdmin())
                 <a href="{{ route($route) }}"
                    class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition
                    {{ request()->routeIs($route) ? 'bg-brand-800 font-semibold' : 'text-brand-200/70 hover:bg-brand-800/60' }}">
@@ -36,7 +37,7 @@
         <header class="h-16 bg-white border-b border-brand-100 flex items-center justify-between px-6">
             <div>
                 <h1 class="font-bold text-brand-800">@yield('heading', $title ?? 'Admin')</h1>
-                <p class="text-xs text-brand-500">Halo, {{ auth()->user()->name }} · peran: admin</p>
+                <p class="text-xs text-brand-500">Halo, {{ auth()->user()->name }} · peran: {{ auth()->user()->roles->pluck('name')->implode(', ') ?: '—' }}</p>
             </div>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf

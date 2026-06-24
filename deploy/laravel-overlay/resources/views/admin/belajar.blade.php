@@ -18,7 +18,8 @@
         ['kasus',     '13. Studi Kasus: Sapi Lokal vs Besar'],
         ['sistem',    '14. Arsitektur Sistem'],
         ['improve',   '15. Cara Meningkatkan Model'],
-        ['glosarium', '16. Glosarium Singkatan'],
+        ['estimasi-prediksi', '16. Estimasi atau Prediksi?'],
+        ['glosarium', '17. Glosarium Singkatan'],
     ];
     $box = 'bg-white rounded-2xl border border-brand-100 shadow-sm p-6 space-y-3 scroll-mt-24';
     $h2  = 'text-xl font-bold text-brand-800';
@@ -330,8 +331,43 @@
 </section>
 
 {{-- 16 --}}
+<section id="estimasi-prediksi" class="{{ $box }}">
+    <h2 class="{{ $h2 }}">16. Estimasi atau Prediksi?</h2>
+    <p>Pertanyaan yang sering ditanyakan (termasuk oleh dosen): apa yang TernakKu lakukan ini <b>estimasi</b> atau
+    <b>prediksi</b>? Jawaban singkat: <b>keduanya benar — tergantung sudut pandang</b>, dan istilahnya tidak bertentangan.</p>
+    <ul class="list-disc pl-5 space-y-1">
+        <li><b>Estimasi (pendugaan)</b> = menyimpulkan nilai yang <b>sudah ada sekarang tapi belum diukur</b>. Bobot sapi
+        itu nyata ada saat ini, hanya belum ditimbang → kita "duga" dari ukuran tubuh.</li>
+        <li><b>Prediksi</b> = menebak nilai untuk observasi/individu <b>baru</b>, biasanya disertai ketidakpastian
+        per-individu. Dalam ML, model "memprediksi" target dari input baru.</li>
+    </ul>
+    <p>Untuk TernakKu, dua kerangka ini bertemu:</p>
+    <ul class="list-disc pl-5 space-y-1">
+        <li><b>Sisi data science / ML → prediksi.</b> Di taksonomi analitik (Bab 3) ini <i>predictive analytics</i>;
+        model memprediksi bobot untuk sapi baru. Bahkan rentang p10–p90 secara teknis adalah <i>prediction interval</i>.</li>
+        <li><b>Sisi ilmu peternakan → estimasi/pendugaan.</b> Jurnal sapi memakai istilah "pendugaan/estimasi bobot
+        badan", dan secara makna tepat: bobot adalah kuantitas nyata yang ada kini, bukan ramalan masa depan.</li>
+    </ul>
+    <p>Cara merangkainya paling rapi:</p>
+    <code class="{{ $rumus }}">Kita memakai MODEL PREDIKTIF (machine learning) untuk menghasilkan ESTIMASI / pendugaan bobot badan.</code>
+    <x-help title="Saran istilah untuk laporan/artikel">
+        <p>Untuk <b>jurnal peternakan</b> → pakai <b>"pendugaan/estimasi bobot badan"</b> (istilah baku domain). Untuk
+        <b>bab metode/data science</b> → sebut <b>"predictive modeling / predictive analytics"</b>. Jelaskan sekali di
+        awal bahwa keduanya merujuk hal yang sama. Hindari kesan "meramal masa depan" — di sini kita menduga nilai kini,
+        jadi "estimasi/pendugaan" lebih aman maknanya, sementara "prediktif" tepat untuk menyebut <i>jenis metodenya</i>.</p>
+    </x-help>
+    <p class="text-sm text-brand-600">Di aplikasi ini sudah konsisten: UI memakai <b>"estimasi bobot"</b> (untuk
+    peternak/awam), dan modul belajar menempatkannya sebagai metode <b>prediktif</b> (Bab 3) bertipe <b>regresi</b>
+    (Bab 4). Ringkas: <b>outputnya estimasi bobot, metodenya tergolong prediktif.</b></p>
+    <x-quiz q="Mana pernyataan yang paling tepat untuk TernakKu?"
+            :opsi="['Ini murni prediksi masa depan, bukan estimasi', 'Kita pakai model prediktif (ML) untuk menghasilkan estimasi/pendugaan bobot — keduanya merujuk hal yang sama', 'Estimasi dan prediksi bertentangan, harus pilih salah satu']"
+            :benar="1"
+            jawaban="Metodenya prediktif (ML/regresi), outputnya estimasi/pendugaan bobot kini — istilahnya saling melengkapi, bukan bertentangan." />
+</section>
+
+{{-- 17 --}}
 <section id="glosarium" class="{{ $box }}">
-    <h2 class="{{ $h2 }}">16. Glosarium Singkatan</h2>
+    <h2 class="{{ $h2 }}">17. Glosarium Singkatan</h2>
     <dl class="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
         <div><dt class="font-semibold text-brand-800">AI</dt><dd class="text-brand-600">Artificial Intelligence — kecerdasan buatan.</dd></div>
         <div><dt class="font-semibold text-brand-800">ML</dt><dd class="text-brand-600">Machine Learning — pembelajaran mesin.</dd></div>

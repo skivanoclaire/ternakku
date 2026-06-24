@@ -37,11 +37,18 @@
             <p class="font-bold text-brand-800">Notebook Colab — eksperimen ML (kode lengkap berkomentar per baris)</p>
             <p class="text-sm text-brand-500">Jalankan & pelajari pipeline model langsung di browser, tanpa server. Pas untuk belajar tiap baris kodenya.</p>
         </div>
-        <a href="https://colab.research.google.com/drive/1oZMlZb7GrEFPCKJNXRGm6AMwDyaKbKXb?usp=sharing"
-           target="_blank" rel="noopener"
-           class="shrink-0 px-5 py-3 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 transition shadow-lg shadow-amber-500/20">
-            Buka di Google Colab ↗
-        </a>
+        <div class="shrink-0 flex flex-col sm:flex-row gap-2">
+            <a href="https://colab.research.google.com/drive/1oZMlZb7GrEFPCKJNXRGm6AMwDyaKbKXb?usp=sharing"
+               target="_blank" rel="noopener"
+               class="px-5 py-3 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 transition shadow-lg shadow-amber-500/20 text-center">
+                Buka di Google Colab ↗
+            </a>
+            <a href="https://github.com/skivanoclaire/ternakku/tree/main/ml"
+               target="_blank" rel="noopener"
+               class="px-5 py-3 rounded-xl bg-brand-900 text-white font-semibold hover:bg-brand-800 transition shadow-lg shadow-brand-900/20 text-center">
+                Kode ML di GitHub ↗
+            </a>
+        </div>
     </div>
 
     <div class="grid md:grid-cols-3 gap-4">

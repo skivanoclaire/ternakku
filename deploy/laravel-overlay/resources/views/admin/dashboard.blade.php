@@ -30,6 +30,20 @@
         <a href="{{ route('admin.eda') }}" class="px-5 py-3 rounded-xl border border-brand-200 text-brand-700 font-semibold hover:bg-brand-100 transition">🔎 Eksplorasi data</a>
     </div>
 
+    {{-- Notebook Colab --}}
+    <div class="bg-white rounded-2xl border border-brand-100 shadow-sm p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+        <div class="text-3xl">📓</div>
+        <div class="flex-1">
+            <p class="font-bold text-brand-800">Notebook Colab — eksperimen ML (kode lengkap berkomentar per baris)</p>
+            <p class="text-sm text-brand-500">Jalankan & pelajari pipeline model langsung di browser, tanpa server. Pas untuk belajar tiap baris kodenya.</p>
+        </div>
+        <a href="https://colab.research.google.com/drive/1oZMlZb7GrEFPCKJNXRGm6AMwDyaKbKXb?usp=sharing"
+           target="_blank" rel="noopener"
+           class="shrink-0 px-5 py-3 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 transition shadow-lg shadow-amber-500/20">
+            Buka di Google Colab ↗
+        </a>
+    </div>
+
     <div class="grid md:grid-cols-3 gap-4">
         <div class="bg-white rounded-2xl p-5 border border-brand-100 shadow-sm">
             <p class="text-xs text-brand-500">Status service ML</p>

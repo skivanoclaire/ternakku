@@ -100,7 +100,7 @@
         <tbody class="divide-y divide-brand-50">
             <tr><td class="px-3 py-2"><b>Deskriptif</b></td><td class="px-3 py-2">Apa yang terjadi?</td><td class="px-3 py-2">dashboard: jumlah data, rata-rata bobot</td></tr>
             <tr><td class="px-3 py-2"><b>Diagnostik</b></td><td class="px-3 py-2">Kenapa terjadi?</td><td class="px-3 py-2">analisis korelasi LD↔bobot, error per ras</td></tr>
-            <tr><td class="px-3 py-2"><b>Prediktif</b></td><td class="px-3 py-2">Apa yang akan terjadi?</td><td class="px-3 py-2"><b>estimasi bobot (Modul 1)</b> ← fokus kita</td></tr>
+            <tr><td class="px-3 py-2"><b>Prediktif</b></td><td class="px-3 py-2">Apa yang akan terjadi?</td><td class="px-3 py-2">ramalan harga / waktu jual ke depan (Modul 6)</td></tr>
             <tr><td class="px-3 py-2"><b>Preskriptif</b></td><td class="px-3 py-2">Apa yang sebaiknya dilakukan?</td><td class="px-3 py-2">rekomendasi waktu jual optimal (Modul 6)</td></tr>
         </tbody>
     </table>
@@ -119,7 +119,9 @@
         <text x="400" y="48"  font-size="8" fill="#14532d" text-anchor="middle">sebaiknya apa</text>
         <text x="240" y="20" font-size="10" fill="#15803d" text-anchor="middle">makin canggih →</text>
     </svg>
-    <p class="text-sm text-brand-600">Modul 1 berada di tingkat <b>prediktif</b> (★) — inti nilai platform.</p>
+    <p class="text-sm text-brand-600"><b>Modul 1</b> (estimasi bobot) adalah tugas <b>estimasi</b> — menghitung nilai
+    <b>masa kini</b> yang belum diukur; secara kategori analitik ia berada di rumpun prediktif. Beda "estimasi" vs
+    "prediksi" (berdasarkan waktu) dibahas tuntas di <b>Bab 16</b>.</p>
 </section>
 
 {{-- 4 --}}
@@ -333,36 +335,43 @@
 {{-- 16 --}}
 <section id="estimasi-prediksi" class="{{ $box }}">
     <h2 class="{{ $h2 }}">16. Estimasi atau Prediksi?</h2>
-    <p>Pertanyaan yang sering ditanyakan: apa yang TernakKu lakukan ini <b>estimasi</b> atau
-    <b>prediksi</b>? Jawaban singkat: <b>keduanya benar — tergantung sudut pandang</b>, dan istilahnya tidak bertentangan.</p>
+    <p>Apa yang TernakKu lakukan ini <b>estimasi</b> atau <b>prediksi</b>? Kunci pembedanya satu: <b>WAKTU</b> —
+    kapan nilai yang dicari itu ada.</p>
+    <table class="w-full text-sm border border-brand-100 rounded-lg overflow-hidden">
+        <thead class="bg-brand-50/60 text-left text-brand-600"><tr><th class="px-3 py-2"></th><th class="px-3 py-2">Estimasi</th><th class="px-3 py-2">Prediksi</th></tr></thead>
+        <tbody class="divide-y divide-brand-50">
+            <tr><td class="px-3 py-2 font-medium">Nilainya ada kapan?</td><td class="px-3 py-2"><b>Sekarang</b> — sudah ada, tapi belum diukur/diketahui</td><td class="px-3 py-2"><b>Masa depan</b> — belum terjadi</td></tr>
+            <tr><td class="px-3 py-2 font-medium">Dasarnya</td><td class="px-3 py-2">Data historis</td><td class="px-3 py-2">Tren masa lalu (deret waktu)</td></tr>
+            <tr><td class="px-3 py-2 font-medium">Contoh umum</td><td class="px-3 py-2">Memperkirakan total biaya perbaikan</td><td class="px-3 py-2">Memproyeksikan penjualan bulan depan</td></tr>
+        </tbody>
+    </table>
+
+    <p class="bg-brand-50 border border-brand-100 rounded-lg px-4 py-3">
+        <b>Jadi Modul 1 (estimasi bobot) = ESTIMASI.</b> Bobot sapi itu <b>ada sekarang</b> — sapinya hidup, beratnya nyata,
+        hanya <b>belum ditimbang</b>. Kita menghitung nilai masa-kini itu dari data historis (pola sapi lain). Kita
+        <b>tidak</b> meramal kejadian masa depan dan <b>tidak</b> memakai tren waktu → maka <b>bukan prediksi</b>.</p>
+
+    <p>Contoh estimasi vs prediksi <b>di TernakKu sendiri</b>:</p>
     <ul class="list-disc pl-5 space-y-1">
-        <li><b>Estimasi (pendugaan)</b> = menyimpulkan nilai yang <b>sudah ada sekarang tapi belum diukur</b>. Bobot sapi
-        itu nyata ada saat ini, hanya belum ditimbang → kita "duga" dari ukuran tubuh.</li>
-        <li><b>Prediksi</b> = menebak nilai untuk observasi/individu <b>baru</b>, biasanya disertai ketidakpastian
-        per-individu. Dalam ML, model "memprediksi" target dari input baru.</li>
+        <li><b>Estimasi</b> — Modul 1 (yang kita kerjakan): berapa bobot sapi ini <b>sekarang</b> dari lingkar dadanya.</li>
+        <li><b>Prediksi</b> — Modul 6 (nanti): berapa bobot sapi ini <b>2 bulan lagi</b>, atau <b>harga jual bulan depan</b>
+        saat Idul Adha. Ini baru prediksi: kejadian masa depan mengikuti tren waktu.</li>
     </ul>
-    <p>Untuk TernakKu, dua kerangka ini bertemu:</p>
-    <ul class="list-disc pl-5 space-y-1">
-        <li><b>Sisi data science / ML → prediksi.</b> Di taksonomi analitik (Bab 3) ini <i>predictive analytics</i>;
-        model memprediksi bobot untuk sapi baru. Bahkan rentang p10–p90 secara teknis adalah <i>prediction interval</i>.</li>
-        <li><b>Sisi ilmu peternakan → estimasi/pendugaan.</b> Jurnal sapi memakai istilah "pendugaan/estimasi bobot
-        badan", dan secara makna tepat: bobot adalah kuantitas nyata yang ada kini, bukan ramalan masa depan.</li>
-    </ul>
-    <p>Cara merangkainya paling rapi:</p>
-    <code class="{{ $rumus }}">Kita memakai MODEL PREDIKTIF (machine learning) untuk menghasilkan ESTIMASI / pendugaan bobot badan.</code>
-    <x-help title="Saran istilah untuk laporan/artikel">
-        <p>Untuk <b>jurnal peternakan</b> → pakai <b>"pendugaan/estimasi bobot badan"</b> (istilah baku domain). Untuk
-        <b>bab metode/data science</b> → sebut <b>"predictive modeling / predictive analytics"</b>. Jelaskan sekali di
-        awal bahwa keduanya merujuk hal yang sama. Hindari kesan "meramal masa depan" — di sini kita menduga nilai kini,
-        jadi "estimasi/pendugaan" lebih aman maknanya, sementara "prediktif" tepat untuk menyebut <i>jenis metodenya</i>.</p>
+
+    <x-help title="Tapi kenapa di pemrograman sering disebut 'predict'?">
+        <p>Di dunia machine learning, fungsi modelnya kebetulan dinamai <code>predict()</code> dan kategori luasnya
+        disebut <i>"predictive analytics"</i> (Bab 3). Itu <b>istilah teknis yang longgar</b>, bukan makna waktu yang
+        dipakai untuk membedakan estimasi vs prediksi. Untuk pertanyaan estimasi-atau-prediksi, jawab tegas:
+        <b>Modul 1 = estimasi</b> (menghitung nilai masa kini).</p>
     </x-help>
-    <p class="text-sm text-brand-600">Di aplikasi ini sudah konsisten: UI memakai <b>"estimasi bobot"</b> (untuk
-    peternak/awam), dan modul belajar menempatkannya sebagai metode <b>prediktif</b> (Bab 3) bertipe <b>regresi</b>
-    (Bab 4). Ringkas: <b>outputnya estimasi bobot, metodenya tergolong prediktif.</b></p>
-    <x-quiz q="Mana pernyataan yang paling tepat untuk TernakKu?"
-            :opsi="['Ini murni prediksi masa depan, bukan estimasi', 'Kita pakai model prediktif (ML) untuk menghasilkan estimasi/pendugaan bobot — keduanya merujuk hal yang sama', 'Estimasi dan prediksi bertentangan, harus pilih salah satu']"
+
+    <p class="text-sm text-brand-600">Untuk laporan/artikel: pakai istilah <b>"pendugaan/estimasi bobot badan"</b>
+    (juga istilah baku di jurnal peternakan). Sebut "prediksi" hanya bila benar-benar meramal ke depan (mis. Modul 6).</p>
+
+    <x-quiz q="Menebak bobot sapi yang HIDUP SEKARANG dari lingkar dadanya (belum ditimbang) termasuk?"
+            :opsi="['Prediksi — karena memakai model machine learning', 'Estimasi — menghitung nilai masa kini yang belum diketahui dari data historis', 'Prediksi — karena meramal masa depan']"
             :benar="1"
-            jawaban="Metodenya prediktif (ML/regresi), outputnya estimasi/pendugaan bobot kini — istilahnya saling melengkapi, bukan bertentangan." />
+            jawaban="Bobotnya ada sekarang (cuma belum ditimbang) → estimasi. Prediksi itu untuk kejadian masa depan/tren waktu, seperti meramal harga bulan depan." />
 </section>
 
 {{-- 17 --}}

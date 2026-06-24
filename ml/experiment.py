@@ -301,6 +301,39 @@ def _real_holdout(real):
     return shuf.iloc[ntest:], shuf.iloc[:ntest]
 
 
+def load_bundle(model_ver, outdir):
+    """Muat artefak model: 'active' = model aktif; selain itu dari experiments/<ver>.joblib."""
+    if model_ver in ("active", "aktif", "", None):
+        path = os.path.join(outdir, "model_modul1.joblib")
+    else:
+        path = os.path.join(outdir, "experiments", f"{model_ver}.joblib")
+    return joblib.load(path) if os.path.exists(path) else None
+
+
+def evaluate_external(bundle, rows):
+    """Evaluasi model pada data uji EKSTERNAL (tidak dilatihkan).
+    rows = list dict dengan lingkar_dada_cm, (panjang_badan_cm, tinggi_gumba_cm), bobot_timbang_kg.
+    """
+    y, p, detail = [], [], []
+    for r in rows:
+        ld = float(r["lingkar_dada_cm"])
+        pb = r.get("panjang_badan_cm")
+        tg = r.get("tinggi_gumba_cm")
+        truth = float(r["bobot_timbang_kg"])
+        pred = predict_one(bundle, ld, pb, tg)
+        y.append(truth); p.append(pred)
+        detail.append({
+            "lingkar_dada_cm": round(ld, 1),
+            "aktual": round(truth, 1),
+            "prediksi": round(float(pred), 1),
+            "error_pct": round((pred - truth) / truth * 100, 1) if truth else None,
+        })
+    if not y:
+        return {"error": "tidak ada baris valid"}
+    metrics, diagnostics = _eval_block(np.array(y, float), np.array(p, float))
+    return {"n": len(y), "metrics": metrics, "diagnostics": diagnostics, "detail": detail}
+
+
 def eda(csv):
     df = pd.read_csv(csv)
     cols = [c for c in ALL_FEATS + [TARGET] if c in df.columns]

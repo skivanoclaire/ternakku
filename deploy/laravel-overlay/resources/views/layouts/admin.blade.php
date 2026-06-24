@@ -9,6 +9,7 @@
         ['admin.latih',      'Latih Model',   '⚙️'],
         ['admin.leaderboard','Leaderboard',   '🏆'],
         ['admin.model',      'Model Aktif',   '🚀'],
+        ['admin.uji',        'Uji Model',     '🧪'],
         ['admin.pengguna',   'Pengguna',      '👥'],
         ['admin.belajar',    'Modul Belajar', '📚'],
     ];

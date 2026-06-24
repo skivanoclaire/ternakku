@@ -57,6 +57,18 @@ class SynthReq(BaseModel):
     n: int = 800
 
 
+class EvalRow(BaseModel):
+    lingkar_dada_cm: float
+    panjang_badan_cm: float | None = None
+    tinggi_gumba_cm: float | None = None
+    bobot_timbang_kg: float
+
+
+class EvalReq(BaseModel):
+    model_ver: str = "active"
+    rows: list[EvalRow] = []
+
+
 class PromoteReq(BaseModel):
     model_ver: str
 
@@ -109,6 +121,16 @@ def experiment_train(req: TrainReq):
 def synth_generate(req: SynthReq):
     """Bangkitkan data sintetis (dikembalikan ke Laravel untuk disimpan ke DB)."""
     return {"rows": experiment.generate_synthetic(req.n)}
+
+
+@app.post("/evaluate")
+def evaluate(req: EvalReq):
+    """Uji model pada data uji eksternal (tidak dilatihkan). Kembalikan metrik + detail."""
+    bundle = experiment.load_bundle(req.model_ver, DATA_OUT)
+    if bundle is None:
+        return {"error": f"model '{req.model_ver}' tidak ditemukan"}
+    rows = [r.model_dump() for r in req.rows]
+    return experiment.evaluate_external(bundle, rows)
 
 
 @app.post("/experiment/promote")

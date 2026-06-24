@@ -74,6 +74,16 @@ class MlClient
         return Http::timeout(60)->post($this->base . '/synth/generate', ['n' => $n])->json() ?? ['error' => 'gagal generate'];
     }
 
+    /** Uji model pada data uji eksternal (tidak dilatihkan). */
+    public function evaluate(string $modelVer, array $rows): array
+    {
+        $res = Http::timeout(120)->post($this->base . '/evaluate', [
+            'model_ver' => $modelVer,
+            'rows'      => array_values($rows),
+        ]);
+        return $res->json() ?? ['error' => 'ml tidak merespons saat evaluasi'];
+    }
+
     /** Jadikan artefak eksperimen sebagai model aktif (melayani peternak). */
     public function promote(string $modelVer): array
     {

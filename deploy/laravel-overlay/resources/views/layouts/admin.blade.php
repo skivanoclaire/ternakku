@@ -4,12 +4,12 @@
 @php
     $nav = [
         ['admin.dashboard',  'Dashboard',     '📊'],
-        ['admin.belajar',    'Modul Belajar', '📚'],
         ['admin.data',       'Data Latih',    '📥'],
         ['admin.eda',        'Eksplorasi Data','🔎'],
         ['admin.latih',      'Latih Model',   '⚙️'],
         ['admin.leaderboard','Leaderboard',   '🏆'],
         ['admin.model',      'Model Aktif',   '🚀'],
+        ['admin.belajar',    'Modul Belajar', '📚'],
         ['admin.pengguna',   'Pengguna',      '👥'],
     ];
 @endphp

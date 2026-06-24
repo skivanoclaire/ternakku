@@ -333,7 +333,7 @@
 {{-- 16 --}}
 <section id="estimasi-prediksi" class="{{ $box }}">
     <h2 class="{{ $h2 }}">16. Estimasi atau Prediksi?</h2>
-    <p>Pertanyaan yang sering ditanyakan (termasuk oleh dosen): apa yang TernakKu lakukan ini <b>estimasi</b> atau
+    <p>Pertanyaan yang sering ditanyakan: apa yang TernakKu lakukan ini <b>estimasi</b> atau
     <b>prediksi</b>? Jawaban singkat: <b>keduanya benar — tergantung sudut pandang</b>, dan istilahnya tidak bertentangan.</p>
     <ul class="list-disc pl-5 space-y-1">
         <li><b>Estimasi (pendugaan)</b> = menyimpulkan nilai yang <b>sudah ada sekarang tapi belum diukur</b>. Bobot sapi

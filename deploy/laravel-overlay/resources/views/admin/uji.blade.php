@@ -10,8 +10,8 @@
 </x-help>
 
 <div class="bg-white rounded-2xl border border-brand-100 shadow-sm p-6 max-w-2xl">
-    <h2 class="font-bold text-brand-800 mb-1">Unggah Data Uji</h2>
-    <p class="text-xs text-brand-500 mb-4">CSV berisi ukuran tubuh + <b>bobot asli</b>. Sebutkan nama kolom sesuai header CSV-mu.</p>
+    <h2 class="font-bold text-brand-800 mb-1">Data Uji</h2>
+    <p class="text-xs text-brand-500 mb-4">Isi <b>beberapa baris manual</b> (cepat) <b>atau</b> unggah <b>CSV</b> (banyak baris). Butuh ukuran tubuh + <b>bobot asli</b> sebagai pembanding.</p>
     <form method="POST" action="{{ route('admin.uji.run') }}" enctype="multipart/form-data" class="space-y-4">
         @csrf
         <div>
@@ -23,20 +23,39 @@
                 @endforeach
             </select>
         </div>
+        {{-- Cara 1: isi manual (tidak wajib CSV) --}}
         <div>
-            <label class="block text-sm font-medium mb-1">File CSV</label>
-            <input type="file" name="csv" accept=".csv,.txt" required class="w-full text-sm rounded-xl border border-brand-200 bg-brand-50/50 px-3 py-2.5">
+            <label class="block text-sm font-medium mb-1">Isi data uji (cara cepat)</label>
+            <p class="text-xs text-brand-500 mb-1">Satu baris = <code>LD, PB, TG, bobot_asli</code>. PB &amp; TG boleh dikosongkan (mis. <code>195,,,560</code>).</p>
+            <textarea name="manual" rows="4" placeholder="140.8, 113.27, 104.73, 205.9"
+                      class="w-full rounded-xl border-brand-200 bg-brand-50/50 px-4 py-2.5 font-mono text-sm">{{ old('manual') }}</textarea>
         </div>
-        <div class="grid grid-cols-2 gap-3">
-            <div><label class="block text-sm font-medium mb-1">Kolom lingkar dada *</label>
-                <input name="col_ld" value="{{ old('col_ld','lingkar_dada_cm') }}" required class="w-full rounded-xl border-brand-200 bg-brand-50/50 px-4 py-2.5"></div>
-            <div><label class="block text-sm font-medium mb-1">Kolom bobot asli *</label>
-                <input name="col_bobot" value="{{ old('col_bobot','bobot_timbang_kg') }}" required class="w-full rounded-xl border-brand-200 bg-brand-50/50 px-4 py-2.5"></div>
-            <div><label class="block text-sm font-medium mb-1">Kolom panjang badan</label>
-                <input name="col_pb" value="{{ old('col_pb','panjang_badan_cm') }}" class="w-full rounded-xl border-brand-200 bg-brand-50/50 px-4 py-2.5"></div>
-            <div><label class="block text-sm font-medium mb-1">Kolom tinggi gumba</label>
-                <input name="col_gumba" value="{{ old('col_gumba','tinggi_gumba_cm') }}" class="w-full rounded-xl border-brand-200 bg-brand-50/50 px-4 py-2.5"></div>
+
+        <div class="flex items-center gap-3 text-xs text-brand-400">
+            <span class="flex-1 h-px bg-brand-100"></span>— atau unggah CSV —<span class="flex-1 h-px bg-brand-100"></span>
         </div>
+
+        {{-- Cara 2: unggah CSV (opsional) --}}
+        <div x-data="{ buka:false }">
+            <button type="button" @click="buka=!buka" class="text-sm font-medium text-brand-700 hover:underline">
+                <span x-text="buka ? '− Sembunyikan opsi CSV' : '+ Unggah file CSV (banyak baris)'"></span>
+            </button>
+            <div x-show="buka" x-cloak class="mt-3 space-y-3">
+                <input type="file" name="csv" accept=".csv,.txt" class="w-full text-sm rounded-xl border border-brand-200 bg-brand-50/50 px-3 py-2.5">
+                <p class="text-xs text-brand-500">Sebutkan nama kolom sesuai header CSV-mu:</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="block text-xs font-medium mb-1">Kolom lingkar dada</label>
+                        <input name="col_ld" value="{{ old('col_ld','lingkar_dada_cm') }}" class="w-full rounded-xl border-brand-200 bg-brand-50/50 px-4 py-2"></div>
+                    <div><label class="block text-xs font-medium mb-1">Kolom bobot asli</label>
+                        <input name="col_bobot" value="{{ old('col_bobot','bobot_timbang_kg') }}" class="w-full rounded-xl border-brand-200 bg-brand-50/50 px-4 py-2"></div>
+                    <div><label class="block text-xs font-medium mb-1">Kolom panjang badan</label>
+                        <input name="col_pb" value="{{ old('col_pb','panjang_badan_cm') }}" class="w-full rounded-xl border-brand-200 bg-brand-50/50 px-4 py-2"></div>
+                    <div><label class="block text-xs font-medium mb-1">Kolom tinggi gumba</label>
+                        <input name="col_gumba" value="{{ old('col_gumba','tinggi_gumba_cm') }}" class="w-full rounded-xl border-brand-200 bg-brand-50/50 px-4 py-2"></div>
+                </div>
+            </div>
+        </div>
+
         <button class="w-full py-3 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700 transition">Uji model</button>
     </form>
 </div>

@@ -65,7 +65,7 @@
     @php $m = $hasil['metrics'] ?? []; @endphp
     <div class="flex items-center gap-3 flex-wrap">
         <h2 class="text-xl font-bold text-brand-800">Hasil Uji</h2>
-        <span class="text-xs px-2.5 py-1 rounded-full bg-brand-100 text-brand-700">model: {{ $hasil['model_ver'] }}</span>
+        <span class="text-xs px-2.5 py-1 rounded-full bg-brand-100 text-brand-700">model: {{ $hasil['model_label'] ? $hasil['model_label'].' ('.$hasil['model_ver'].')' : $hasil['model_ver'] }}{{ ($hasil['model_aktif'] ?? false) ? ' · aktif' : '' }}</span>
         <span class="text-xs px-2.5 py-1 rounded-full bg-brand-100 text-brand-700">{{ $hasil['n'] }} baris diuji</span>
         @if(($hasil['dilewati'] ?? 0) > 0)<span class="text-xs px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">{{ $hasil['dilewati'] }} dilewati</span>@endif
     </div>

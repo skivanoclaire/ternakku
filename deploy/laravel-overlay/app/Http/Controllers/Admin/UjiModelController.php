@@ -86,8 +86,14 @@ class UjiModelController extends Controller
         if (isset($hasil['error'])) {
             return back()->withErrors(['ml' => $hasil['error']]);
         }
-        $hasil['model_ver'] = $request->model_ver;
-        $hasil['dilewati'] = $skip;
+        // resolusi label ramah untuk badge hasil (mis. "XGBoost (exp4-xgb)")
+        $exp = $request->model_ver === 'active'
+            ? Experiment::where('is_active', true)->first()
+            : Experiment::where('model_ver', $request->model_ver)->first();
+        $hasil['model_ver']   = $exp?->model_ver ?? $request->model_ver;
+        $hasil['model_label'] = $exp?->method_label ?? $exp?->method;
+        $hasil['model_aktif'] = $request->model_ver === 'active';
+        $hasil['dilewati']    = $skip;
 
         return view('admin.uji', [
             'models' => Experiment::whereNotNull('model_ver')->latest()->get(),

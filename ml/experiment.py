@@ -81,6 +81,14 @@ def _xgb():
     return XGBRegressor(n_estimators=300, max_depth=4, learning_rate=0.05, random_state=SEED, n_jobs=-1)
 
 
+def _fin(v, d=2):
+    """Bulatkan; kembalikan None bila None/tak-hingga/NaN (agar aman di-JSON-kan)."""
+    if v is None:
+        return None
+    v = float(v)
+    return round(v, d) if np.isfinite(v) else None
+
+
 def _metrics(y, p):
     y, p = np.asarray(y, float), np.asarray(p, float)
     err = y - p
@@ -90,9 +98,9 @@ def _metrics(y, p):
     bias = float(np.mean(p - y))
     ss_res = float(np.sum(err ** 2))
     ss_tot = float(np.sum((y - y.mean()) ** 2))
-    r2 = 1 - ss_res / ss_tot if ss_tot else float("nan")
-    return {"mape": round(mape, 2), "mae": round(mae, 2), "rmse": round(rmse, 2),
-            "r2": round(r2, 4), "bias": round(bias, 2)}
+    r2 = (1 - ss_res / ss_tot) if ss_tot else None   # R² tak terdefinisi bila cuma 1 titik / bobot sama
+    return {"mape": _fin(mape), "mae": _fin(mae), "rmse": _fin(rmse),
+            "r2": _fin(r2, 4), "bias": _fin(bias)}
 
 
 def _schoorl(ld):
@@ -201,15 +209,16 @@ def _eval_block(y_eval, p_eval):
     metrics = _metrics(y_eval, p_eval)
     resid = np.asarray(y_eval, float) - np.asarray(p_eval, float)
     sd = float(np.std(resid)); z = 1.2816
-    metrics["coverage"] = round(float(np.mean(np.abs(resid) <= z * sd) * 100), 1)
-    metrics["interval_kg"] = round(2 * z * sd, 1)
-    idx = np.arange(len(y_eval))
+    metrics["coverage"] = _fin(float(np.mean(np.abs(resid) <= z * sd) * 100), 1)
+    metrics["interval_kg"] = _fin(2 * z * sd, 1)
+    ye, pe = np.asarray(y_eval, float), np.asarray(p_eval, float)
+    idx = np.arange(len(ye))
     if len(idx) > 400:
         idx = np.sort(np.random.RandomState(SEED).choice(idx, 400, replace=False))
     diagnostics = {
-        "actual":   [round(float(np.asarray(y_eval)[i]), 1) for i in idx],
-        "pred":     [round(float(np.asarray(p_eval)[i]), 1) for i in idx],
-        "residual": [round(float(np.asarray(y_eval)[i] - np.asarray(p_eval)[i]), 1) for i in idx],
+        "actual":   [_fin(ye[i], 1) for i in idx],
+        "pred":     [_fin(pe[i], 1) for i in idx],
+        "residual": [_fin(ye[i] - pe[i], 1) for i in idx],
     }
     return metrics, diagnostics
 
@@ -323,10 +332,10 @@ def evaluate_external(bundle, rows):
         pred = predict_one(bundle, ld, pb, tg)
         y.append(truth); p.append(pred)
         detail.append({
-            "lingkar_dada_cm": round(ld, 1),
-            "aktual": round(truth, 1),
-            "prediksi": round(float(pred), 1),
-            "error_pct": round((pred - truth) / truth * 100, 1) if truth else None,
+            "lingkar_dada_cm": _fin(ld, 1),
+            "aktual": _fin(truth, 1),
+            "prediksi": _fin(pred, 1),
+            "error_pct": _fin((pred - truth) / truth * 100, 1) if truth else None,
         })
     if not y:
         return {"error": "tidak ada baris valid"}

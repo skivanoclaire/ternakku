@@ -92,12 +92,14 @@
         <div class="bg-white rounded-2xl border border-brand-100 shadow-sm overflow-auto" style="max-height:320px">
             <table class="w-full text-sm">
                 <thead class="text-left text-brand-500 bg-brand-50/60 sticky top-0"><tr>
-                    <th class="px-4 py-2">LD</th><th class="px-4 py-2">Aktual</th><th class="px-4 py-2">Prediksi</th><th class="px-4 py-2">Error%</th>
+                    <th class="px-4 py-2">LD</th><th class="px-4 py-2">PB</th><th class="px-4 py-2">TG</th><th class="px-4 py-2">Aktual</th><th class="px-4 py-2">Prediksi</th><th class="px-4 py-2">Error%</th>
                 </tr></thead>
                 <tbody class="divide-y divide-brand-50">
                     @foreach (array_slice($hasil['detail'] ?? [], 0, 200) as $d)
                         <tr class="hover:bg-brand-50/50">
                             <td class="px-4 py-2">{{ $d['lingkar_dada_cm'] }}</td>
+                            <td class="px-4 py-2 text-brand-500">{{ $d['panjang_badan_cm'] ?? '—' }}</td>
+                            <td class="px-4 py-2 text-brand-500">{{ $d['tinggi_gumba_cm'] ?? '—' }}</td>
                             <td class="px-4 py-2">{{ $d['aktual'] }}</td>
                             <td class="px-4 py-2 font-medium">{{ $d['prediksi'] }}</td>
                             <td class="px-4 py-2 {{ abs($d['error_pct'] ?? 0) > 20 ? 'text-red-600' : 'text-green-600' }}">{{ $d['error_pct'] }}%</td>

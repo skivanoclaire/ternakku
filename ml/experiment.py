@@ -333,6 +333,8 @@ def evaluate_external(bundle, rows):
         y.append(truth); p.append(pred)
         detail.append({
             "lingkar_dada_cm": _fin(ld, 1),
+            "panjang_badan_cm": _fin(pb, 1) if pb not in (None, "") else None,
+            "tinggi_gumba_cm": _fin(tg, 1) if tg not in (None, "") else None,
             "aktual": _fin(truth, 1),
             "prediksi": _fin(pred, 1),
             "error_pct": _fin((pred - truth) / truth * 100, 1) if truth else None,
